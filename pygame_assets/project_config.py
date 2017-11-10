@@ -1,4 +1,8 @@
-"""Project configuration."""
+"""Project-specific configuration support.
+
+This module defines a `config` object used by asset loaders
+to get search paths for assets.
+"""
 
 import os
 

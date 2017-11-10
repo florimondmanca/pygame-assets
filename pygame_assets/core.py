@@ -48,6 +48,8 @@ class AssetLoader(metaclass=AssetLoaderMeta):
     asset_type : str
         The type of asset this loader supports.
         A default value based on the class's name is defined at definition.
+        Note: pygame-assets will look for assets of this type in the
+        asset_type subfolder of the configured base folder.
     """
 
     def load(self, filename, *args, **kwargs):
