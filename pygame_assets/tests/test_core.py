@@ -3,6 +3,7 @@
 import unittest
 
 from pygame_assets.core import AssetLoader, AssetLoaderMeta
+from pygame_assets.exceptions import InvalidAssetLoaderNameError
 
 
 class TestAssetLoaderMeta(unittest.TestCase):
@@ -36,13 +37,15 @@ class TestAssetLoaderMeta(unittest.TestCase):
             actual = AssetLoaderMeta.get_asset_type(class_name)
             self.assertEqual(expected, actual)
 
-    def test_value_of_undefined(self):
-        self.assertEqual('undefined', AssetLoaderMeta.UNDEFINED_ASSET_TYPE)
-
-    def test_get_asset_type_without_loader(self):
-        undefined = AssetLoaderMeta.UNDEFINED_ASSET_TYPE
+    def test_get_asset_type_without_loader_in_name(self):
         for name in ('Sounds', 'ImgLoad'):
-            self.assertEqual(undefined, AssetLoaderMeta.get_asset_type(name))
+            with self.assertRaises(InvalidAssetLoaderNameError):
+                AssetLoaderMeta.get_asset_type(name)
+
+    def test_create_asset_loader_bad_name(self):
+        with self.assertRaises(InvalidAssetLoaderNameError):
+            class SoundLo(metaclass=AssetLoaderMeta):
+                """This should end with 'Loader'."""
 
 
 class TestAssetLoader(unittest.TestCase):

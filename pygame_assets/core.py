@@ -3,10 +3,55 @@
 Provides basic asset loading workflow, with error management and
 conversion to a plain function.
 """
-
+import os
 import pygame
-from .exceptions import AssetNotFoundError
-from . import config
+from .exceptions import AssetNotFoundError, InvalidAssetLoaderNameError
+
+
+class config:
+    """Config object that allows project-specific configuration."""
+
+    base = 'assets'
+    custom_loaders_module = 'custom_loaders'
+    dirs = {}
+
+    @classmethod
+    def add_default_dir(cls, loader_class):
+        """Add the default directory for a loader class to the config."""
+        asset_type = loader_class.asset_type
+        if asset_type not in cls.dirs:
+            cls.dirs[asset_type] = [asset_type]
+
+    @classmethod
+    def search_dirs(cls, asset_type):
+        """Return directories where to search assets of this type.
+
+        Returned as a generator.
+
+        Parameters
+        ----------
+        asset_type : str
+        """
+        dirs = cls.dirs.get(asset_type, [asset_type])
+        return (os.path.join(cls.base, dir_) for dir_ in dirs)
+
+    @classmethod
+    def search_paths(cls, asset_type, filename):
+        """Return file paths where to search this asset.
+
+        Returned as a generator.
+
+        Parameters
+        ----------
+        asset_type : str
+        filename : str
+        """
+        search_dirs = cls.search_dirs(asset_type)
+        return (os.path.join(dir_, filename) for dir_ in search_dirs)
+
+    def __str__(self):
+        # TODO print the config's parameters
+        return super().__str__()
 
 
 class AssetLoaderMeta(type):
@@ -15,26 +60,22 @@ class AssetLoaderMeta(type):
     Defines a default asset_type class attribute at class initialization.
     """
 
-    UNDEFINED_ASSET_TYPE = 'undefined'
-    LOADERS = []  # all subclasses will end up in here
-
-    def __new__(metacls, name, bases, namespace):
-        cls = super().__new__(metacls, name, bases, namespace)
-        # register the newly created loader class
-        metacls.LOADERS.append(cls)
-        return cls
-
     def __init__(cls, name, base, namespace):
+        super().__init__(name, base, namespace)
+
+        # assign the asset_type attribute to the cls
         asset_type = namespace.get('asset_type')
         if not asset_type:
             asset_type = AssetLoaderMeta.get_asset_type(name)
         cls.asset_type = asset_type
 
+        # create the config default search dir for newly created loader class
+        config.add_default_dir(cls)
+
     def get_asset_type(name):
-        if 'loader' in name.lower():
-            return name.lower().replace('loader', '')
-        else:
-            return AssetLoaderMeta.UNDEFINED_ASSET_TYPE
+        if 'loader' not in name.lower():
+            raise InvalidAssetLoaderNameError(name)
+        return name.lower().replace('loader', '')
 
 
 class AssetLoader(metaclass=AssetLoaderMeta):
@@ -109,7 +150,3 @@ class AssetLoader(metaclass=AssetLoaderMeta):
         load_asset.__doc__ = "Load a {}.".format(cls.asset_type)
 
         return load_asset
-
-
-# Expose the list of loader classes
-_loaders_list = AssetLoaderMeta.LOADERS

@@ -1,10 +1,6 @@
-from .project_config import config
+from .core import config
 from . import loaders
-from .core import _loaders_list
-
-config.add_default_dirs(_loaders_list)
-
-load = loaders.FunctionLoadersIndex(loaders.load_functions)
+from .loaders import load
 
 
 def init():
