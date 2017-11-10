@@ -2,7 +2,7 @@
 
 import unittest
 
-from core import AssetLoader, AssetLoaderMeta
+from pygame_assets.core import AssetLoader, AssetLoaderMeta
 
 
 class TestAssetLoaderMeta(unittest.TestCase):
@@ -60,12 +60,11 @@ class TestAssetLoader(unittest.TestCase):
         class DummyLoader(AssetLoader):
 
             def get_asset(self, filepath, a, b, c):
-                return 'Loading {} using {}'.format(filepath,
-                                                    ', '.join((a, b, c)))
+                return 'Loading asset using {}'.format(', '.join((a, b, c)))
 
         dummy = DummyLoader.as_function()
         result = dummy('image.png', 'hammer', 'saw', 'scissors')
-        self.assertEqual('Loading image.png using hammer, saw, scissors',
+        self.assertEqual('Loading asset using hammer, saw, scissors',
                          result)
 
     def test_loader_as_function_docs_contains_asset_type(self):

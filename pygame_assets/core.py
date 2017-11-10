@@ -4,9 +4,9 @@ Provides basic asset loading workflow, with error management and
 conversion to a plain function.
 """
 
-import os
 import pygame
-from exceptions import AssetNotFoundError
+from .exceptions import AssetNotFoundError
+from . import config
 
 
 class AssetLoaderMeta(type):
@@ -16,6 +16,13 @@ class AssetLoaderMeta(type):
     """
 
     UNDEFINED_ASSET_TYPE = 'undefined'
+    LOADERS = []  # all subclasses will end up in here
+
+    def __new__(metacls, name, bases, namespace):
+        cls = super().__new__(metacls, name, bases, namespace)
+        # register the newly created loader class
+        metacls.LOADERS.append(cls)
+        return cls
 
     def __init__(cls, name, base, namespace):
         asset_type = namespace.get('asset_type')
@@ -30,11 +37,6 @@ class AssetLoaderMeta(type):
             return AssetLoaderMeta.UNDEFINED_ASSET_TYPE
 
 
-def get_default_base_dir():
-    """# TODO."""
-    return ''
-
-
 class AssetLoader(metaclass=AssetLoaderMeta):
     """Base asset loader.
 
@@ -46,23 +48,7 @@ class AssetLoader(metaclass=AssetLoaderMeta):
     asset_type : str
         The type of asset this loader supports.
         A default value based on the class's name is defined at definition.
-    search_dirs : list of str
-        The directories where this loader searches assets, relative
-        to the base_dir.
-    base_dir : str
-        The base directory for asset search. Default is the empty string.
     """
-
-    search_dirs = ['']  # TODO
-
-    def __init__(self, base_dir=None):
-        if base_dir is None:
-            base_dir = get_default_base_dir()
-        self._base_dir = base_dir
-
-    @property
-    def base_dir(self):
-        return self._base_dir
 
     def load(self, filename, *args, **kwargs):
         """Load an asset.
@@ -72,10 +58,10 @@ class AssetLoader(metaclass=AssetLoaderMeta):
         filename : str
             The asset's filename, e.g. 'my-image.png'.
         """
-        for search_dir in self.search_dirs:
-            file_path = self.get_file_path(search_dir, filename)
+        search_paths = config.search_paths(self.asset_type, filename)
+        for filepath in search_paths:
             try:
-                asset = self.get_asset(file_path, *args, **kwargs)
+                asset = self.get_asset(filepath, *args, **kwargs)
                 return asset
             except pygame.error as e:
                 pass
@@ -93,10 +79,6 @@ class AssetLoader(metaclass=AssetLoaderMeta):
             Full path to the asset.
         """
         raise NotImplementedError
-
-    def get_file_path(self, search_dir, filename):
-        # TODO
-        return os.path.join(self.base_dir, search_dir, filename)
 
     @classmethod
     def as_function(cls, returned=lambda asset: asset):
@@ -125,3 +107,7 @@ class AssetLoader(metaclass=AssetLoaderMeta):
         load_asset.__doc__ = "Load a {}.".format(cls.asset_type)
 
         return load_asset
+
+
+# Expose the list of loader classes
+_loaders_list = AssetLoaderMeta.LOADERS

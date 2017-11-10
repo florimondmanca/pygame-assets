@@ -2,7 +2,7 @@
 
 import unittest
 
-from exceptions import AssetNotFoundError
+from pygame_assets.exceptions import AssetNotFoundError
 
 
 class TestExceptions(unittest.TestCase):

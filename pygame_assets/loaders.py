@@ -1,7 +1,7 @@
 """Generic asset management utilities for Pygame."""
 
 import pygame
-from core import AssetLoader
+from .core import AssetLoader
 
 
 class SoundLoader(AssetLoader):
