@@ -68,3 +68,17 @@ load_functions = {
 def register(name, load_function):
     """Allow to register custom load functions."""
     load_functions[name] = load_function
+
+
+class FunctionLoadersIndex:
+    """When instanciated, allows to access function loaders by attribute."""
+
+    def __init__(self, loaders):
+        self.loaders = loaders
+
+    def __getattr__(self, name):
+        loader = self.loaders.get(name)
+        if loader is not None:
+            return loader
+        else:
+            raise AttributeError('No such loader: {}'.format(name))

@@ -4,28 +4,26 @@ from .core import _loaders_list
 
 config.add_default_dirs(_loaders_list)
 
-# register loaders from a local assets.py file
+load = loaders.FunctionLoadersIndex(loaders.load_functions)
 
-try:
-    import imp
-    fp, name, description = imp.find_module(config.custom_loaders_module)
+
+def init():
+    """Initialize the pygame-assets package.
+
+    Typically called after changing config settings such as
+    the custom loaders module.
+    """
+    # register loaders from a local assets.py file
+
     try:
-        imp.load_module(config.custom_loaders_module, fp, name, description)
+        import imp
+        fp, name, description = imp.find_module(config.custom_loaders_module)
+        try:
+            imp.load_module(config.custom_loaders_module, fp, name, description)
+        except ImportError:
+            fp.close()
     except ImportError:
-        fp.close()
-except ImportError:
-    pass
+        pass
 
 
-class FunctionLoadersIndex:
-    """When instanciated, allows to access function loaders by attribute."""
-
-    def __getattr__(self, name):
-        loader = loaders.load_functions.get(name)
-        if loader is not None:
-            return loader
-        else:
-            raise AttributeError('No such loader: {}'.format(name))
-
-
-load = FunctionLoadersIndex()
+init()

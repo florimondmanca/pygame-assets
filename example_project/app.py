@@ -3,11 +3,22 @@
 import pygame
 import pygame_assets as assets
 
-# configure the assets base directory
-# note: this is actually the default
-assets.config.base = './assets'
-# register the icons directory because our icon (full of images) is there!
+# Configure the assets base directory, the default being 'assets'.
+assets.config.base = 'static'
+
+# You can register new directories for assets.
+# The line below means pygame-assets will also look for images in the
+# static/icons folder.
 assets.config.dirs['image'].append('icons')
+
+# You can change the location where pygame-assets finds your custom loaders.
+# Useful just in case the default 'custom_loaders.py' collides with one of
+# your existing modules (not so likely, though).
+assets.config.custom_loaders_module = 'myloaders'
+
+# Only required because the default config was changed.
+# Note: it is safe to initialize pygame-assets several times.
+assets.init()
 
 
 def mainloop():
