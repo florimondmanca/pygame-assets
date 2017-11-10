@@ -1,9 +1,9 @@
-"""Example Pygame app showcasing the usage of pygame-assets."""
+"""Example Pygame app to showcase the usage of pygame-assets."""
 
 import pygame
-import pygame_assets as assets
+import pygame_assets as assets  # let's see what we can do with this!
 
-# Configure the assets base directory, the default being 'assets'.
+# You can configure the assets base directory (the default being 'assets').
 assets.config.base = 'static'
 
 # You can register new directories for assets.
@@ -14,7 +14,7 @@ assets.config.dirs['image'].append('icons')
 # You can change the location where pygame-assets finds your custom loaders.
 # Useful just in case the default 'custom_loaders.py' collides with one of
 # your existing modules (not so likely, though).
-assets.config.custom_loaders_module = 'myloaders'
+assets.config.custom_loaders_location = 'myloaders'
 
 # Only required because the default config was changed.
 # Note: it is safe to initialize pygame-assets several times.
@@ -24,29 +24,31 @@ assets.init()
 def mainloop():
     """Example game loop.
 
-    You can move the player right or left!
+    You can move the player right or left. :)
     """
     screen = pygame.display.set_mode((800, 600))
     clock = pygame.time.Clock()
 
+    # every asset loader is available through the `assets.load` object.
+
+    # let's load the icon file and use it as our game's icon.
     icon = assets.load.image('icon.png')
     pygame.display.set_icon(icon)
 
-    # let's load a player sprite!
+    # let's create a player sprite!
     player, player_rect = assets.load.image_with_rect('player.png')
     player_rect.center = (400, 300)
     player_speed = 200
     move_left = False
     move_right = False
 
-    # we could create a spritesheet using our custom spritesheet loader!
+    # we could also create a spritesheet using our custom spritesheet loader
+    # (here, the one defined in myloaders.py is a dummy loader)
     spritesheet = assets.load.spritesheet('some_name.png')
     assert spritesheet == 'dummy spritesheet'
-    # we would only have to define a real loader
-    # and add some spritesheet to the assets/spritesheet/ folder. :)
 
+    # below: just to have a simple game loop, the magic happened before. ;)
     running = True
-
     while running:
         screen.fill((255, 255, 255))
         dt = clock.tick(60) / 1000

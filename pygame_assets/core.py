@@ -12,7 +12,7 @@ class config:
     """Config object that allows project-specific configuration."""
 
     base = 'assets'
-    custom_loaders_module = 'custom_loaders'
+    custom_loaders_location = 'custom_loaders'
     dirs = {}
 
     @classmethod

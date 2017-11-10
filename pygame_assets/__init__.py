@@ -9,13 +9,13 @@ def init():
     Typically called after changing config settings such as
     the custom loaders module.
     """
-    # register loaders from a local assets.py file
-
+    # register custom loades
     try:
         import imp
-        fp, name, description = imp.find_module(config.custom_loaders_module)
+        fp, name, description = imp.find_module(config.custom_loaders_location)
         try:
-            imp.load_module(config.custom_loaders_module, fp, name, description)
+            imp.load_module(config.custom_loaders_location,
+                            fp, name, description)
         except ImportError:
             fp.close()
     except ImportError:
