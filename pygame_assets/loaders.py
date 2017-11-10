@@ -54,9 +54,17 @@ class FreetypeLoader(AssetLoader):
         return pygame.freetype.Font(filepath, size)
 
 
-sound = SoundLoader.as_function()
-image = ImageLoader.as_function()
-image_with_rect = ImageLoader.as_function(lambda img: (img, img.get_rect()))
-music = MusicLoader.as_function()
-font = FontLoader.as_function()
-freetype = FreetypeLoader.as_function()
+load_functions = {
+    'image': ImageLoader.as_function(),
+    'image_with_rect': ImageLoader.as_function(
+        lambda img: (img, img.get_rect())),
+    'sound': SoundLoader.as_function(),
+    'music': MusicLoader.as_function(),
+    'font': FontLoader.as_function(),
+    'freetype': FreetypeLoader.as_function()
+}
+
+
+def register(name, load_function):
+    """Allow to register custom load functions."""
+    load_functions[name] = load_function

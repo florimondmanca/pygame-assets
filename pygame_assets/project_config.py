@@ -8,9 +8,10 @@ import os
 
 
 class Config:
-    """Base config."""
+    """Project config."""
 
     base = 'assets'
+    custom_loaders_module = 'custom_loaders'
     dirs = {}
 
     def add_default_dirs(self, loader_classes):

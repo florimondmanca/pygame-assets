@@ -18,15 +18,21 @@ def mainloop():
     screen = pygame.display.set_mode((800, 600))
     clock = pygame.time.Clock()
 
-    icon = assets.image('icon.png')
+    icon = assets.load.image('icon.png')
     pygame.display.set_icon(icon)
 
     # let's load a player sprite!
-    player, player_rect = assets.image_with_rect('player.png')
+    player, player_rect = assets.load.image_with_rect('player.png')
     player_rect.center = (400, 300)
     player_speed = 200
     move_left = False
     move_right = False
+
+    # we could create a spritesheet using our custom spritesheet loader!
+    spritesheet = assets.load.spritesheet('some_name.png')
+    assert spritesheet == 'dummy spritesheet'
+    # we would only have to define a real loader
+    # and add some spritesheet to the assets/spritesheet/ folder. :)
 
     running = True
 
