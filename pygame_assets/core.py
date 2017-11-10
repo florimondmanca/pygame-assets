@@ -1,4 +1,8 @@
-"""The core loader."""
+"""The core loader.
+
+Provides basic asset loading workflow, with error management and
+conversion to a plain function.
+"""
 
 import os
 import pygame
