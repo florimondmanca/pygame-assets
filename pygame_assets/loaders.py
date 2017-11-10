@@ -13,23 +13,6 @@ class SoundLoader(AssetLoader):
         return sound
 
 
-def sound(filename, *, volume=1):
-    """Load a sound.
-
-    Searches for the sound in the SOUND_DIRS from the settings.py file.
-    If sound is not found, raises a FileNotFound exception.
-
-    Parameters
-    ----------
-    filename : str
-        The sound's file name, e.g. 'click_sound.wav'.
-    volume : float, optional
-        The sound's volume, between 0 and 1.
-        Default is 1.
-    """
-    return SoundLoader.load(filename, volume=volume)
-
-
 class ImageLoader(AssetLoader):
     """Image asset loader."""
 
@@ -44,44 +27,6 @@ class ImageLoader(AssetLoader):
         return image
 
 
-def image(filename, *, alpha=None):
-    """Load an image.
-
-    If image is not found, raises an AssetNotFoundError.
-
-    image('img.png') -> pygame.Surface
-
-    Parameters
-    ----------
-    filename : str
-        The image's file name, e.g. 'mysprite.png'.
-    alpha : bool, optional
-        Pass True or False to explicitly define if the image has alpha channel.
-        Default is to derive it from the surface's get_alpha() value.
-    """
-    loader = ImageLoader()
-    return loader.load(filename)
-
-
-def image_with_rect(filename, *, alpha=None):
-    """Load an image and return it and its rect.
-
-    If image is not found, raises an AssetNoFoundError.
-
-    image_with_rect('img.png') -> (pygame.Surface, pygame.Rect)
-
-    Parameters
-    ----------
-    filename : str
-        The image's file name, e.g. 'mysprite.png'.
-    alpha : bool, optional
-        Pass True or False to explicitly define if the image has alpha channel.
-        Default is to derive it from the surface's get_alpha() value.
-    """
-    _image = image(filename, alpha=alpha)
-    return _image, _image.get_rect()
-
-
 class MusicLoader(AssetLoader):
     """Music loader."""
 
@@ -93,24 +38,8 @@ class MusicLoader(AssetLoader):
         pygame.mixer.music.set_volume(volume)
 
 
-def music(filename, *, volume=1):
-    """Load a music in the pygame mixer.
-
-    Parameters
-    ----------
-    filename : str
-        The music's file name, e.g. 'main_theme.wav'.
-    volume : float, optional
-        Set the playback volume to this value
-    """
-    return MusicLoader.load(filename, volume=volume)
-
-
 class FontLoader(AssetLoader):
     """Font loader."""
-
-    asset_type = 'font'
-    search_dirs = ''  # settings.FONT_DIRS
 
     class Font(pygame.font.Font):
         """Subclass of pygame.font.Font.
@@ -143,30 +72,8 @@ class FontLoader(AssetLoader):
         return FontLoader.Font(file_path, size)
 
 
-def font(filename='', *, size=20):
-    """Load a font.
-
-    Return a pygame.font.Font object.
-
-    Parameters
-    ----------
-    filename : str, optional
-        The font's file name, e.g. 'myfont.otf'.
-        Default is settings.DEFAULT_FONT
-    size : int, optional
-        The font size, in pixels.
-        Default is 20.
-    """
-    if not filename:
-        filename = ''  # settings.DEFAULT_FONT
-    return FontLoader.load(filename, size=size)
-
-
 class FreetypeFontLoader(AssetLoader):
     """Font loader using pygame.freetype."""
-
-    asset_type = 'font'
-    search_dirs = ''  # settings.FONT_DIRS
 
     def get_asset(self, file_path, *, size=20):
         if not pygame.freetype.was_init():
@@ -174,20 +81,9 @@ class FreetypeFontLoader(AssetLoader):
         return pygame.freetype.Font(file_path, size)
 
 
-def freetype(filename='', *, size=20):
-    """Load a font.
-
-    Return a pygame.freetype.Font object.
-
-    Parameters
-    ----------
-    filename : str, optional
-        The font's file name, e.g. 'myfont.otf'.
-        Default is settings.DEFAULT_FONT
-    size : int, optional
-        The font size, in pixels.
-        Default is 20.
-    """
-    if not filename:
-        filename = ''  # settings.DEFAULT_FONT
-    return FreetypeFontLoader.load(filename, size=size)
+sound = SoundLoader.as_function()
+image = ImageLoader.as_function()
+image_with_rect = ImageLoader.as_function(lambda img: (img, img.get_rect()))
+music = MusicLoader.as_function()
+font = FontLoader.as_function()
+freetype = FreetypeFontLoader.as_function()

@@ -56,6 +56,24 @@ class TestAssetLoader(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             loader.get_asset('')
 
+    def test_as_function(self):
+        class DummyLoader(AssetLoader):
+
+            def get_asset(self, filepath, a, b, c):
+                return 'Loading {} using {}'.format(filepath,
+                                                    ', '.join((a, b, c)))
+
+        dummy = DummyLoader.as_function()
+        self.assertEqual('Loading image.png using hammer, saw, scissors',
+                         dummy('image.png', 'hammer', 'saw', 'scissors'))
+
+    def test_as_function_docs(self):
+        class DummyLoader(AssetLoader):
+            pass
+
+        dummy = DummyLoader.as_function()
+        self.assertIn(DummyLoader.asset_type, dummy.__doc__)
+
 
 if __name__ == '__main__':
     unittest.main()
