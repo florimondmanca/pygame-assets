@@ -12,15 +12,19 @@ Pygame Assets is available on PyPI, so use `pip` to install it:
 $ pip install pygame-assets
 ```
 
-## Usage
+## Documentation
 
-PygameAssets expects your assets to be in a folder called `assets`, which should be located at the root of your game project directory. Let's create that folder, shall we?
+The full documentation is hosted on [ReadTheDocs](#).
+
+## Getting started
+
+PygameAssets expects your assets to be in a folder called `assets`, which should be located at the root of your game project directory. Let's create this folder:
 
 ```sh
-my-project $ mkdir assets/
+my_project $ mkdir assets/
 ```
 
-Now, let's say we want to load an image called `player.png`. Here's how we'd do it with PygameAssets.
+Want to load an image called `player.png`?
 
 
 1. Drop `player.png` into `assets/image`
@@ -31,31 +35,52 @@ import pygame_assets as assets
 player_img = assets.load.image('player.png')
 ```
 
-Voilà! We just loaded an image from the filesystem. Wonder about alpha conversion? PygameAssets takes charge of all that for us!
+Bonus points: PygameAssets takes charge of any boilerplate, which means the `assets.load.image` function automatically calls `convert_alpha()` on your image if needed. Check out the documentation for more details.
 
-In fact, PygameAssets' whole API boils down to this `pygame_assets.load` object which takes in charge most of the Pygame asset loading boilerplate. This object gives you access to several **loaders**, each referenced by the type of asset they support (called the **asset type**).
 
-The generic syntax for `pygame_assets.load` is then the following:
+In fact, much of PygameAssets' API boils down to the `pygame_assets.load` object which gives you access to PygameAssets' **loaders**.
+
+The generic syntax for `pygame_assets.load` is the following:
 
 ```python
-asset = pygame_assets.load.<asset_type>(filename, ...)
+asset = pygame_assets.load.<loader_name>(filename, ...)
 ```
 
-### Supported asset types
+> Each loader will expect to find assets in the `assets/<loader_name>` folder. That's why we previously dropped our `player.png` file into `assets/image`.
 
-PygameAssets supports the following asset types: `image`, `sound`, `music`, `font`, `freetype`, `image_with_rect`.
+### Built-in loaders
+
+PygameAssets has the following loaders built-in: `image`, `image_with_rect`, `sound`, `music`, `font`, `freetype`.
 
 See the documentation for full API reference for each asset type.
 
-### Custom asset loaders
+### Custom loaders
 
-If you ever feel the need, PygameAssets allows you to easily define your own asset loaders!
+If you ever feel the need, PygameAssets allows you to easily define your own asset loaders. Definition of custom loaders is based on the `pygame_assets.loaders.loader` decorator. Here's how to use it:
+
+```python
+# my_project/custom_loaders.py
+from pygame_assets.loaders import loader
+
+@loader()
+def spritesheet(filepath):
+    # load the spritesheet then return it
+```
+
+We can now use our custom loader to load a spritesheet (located in `assets/spritesheet`):
+
+```python
+# my_project/game.py
+import pygame_assets as assets
+
+walking_player = assets.load.spritesheet('player-walk.png')
+```
 
 You can check out the custom loader API in the [documentation](#documentation).
 
 ### Custom configuration
 
-PygameAssets is easily pluggable into any projects thanks to its sensible defaults. However, there might be times when these defaults don't fit your needs.
+PygameAssets can be easily plugged into any project thanks to its sensible defaults. These defaults, however, may not always fit your needs.
 
 PygameAssets allows you to set some custom configuration:
 
@@ -65,18 +90,13 @@ import pygame_assets as assets
 # Redefine the name of the assets base directory ('assets' by default)
 assets.config.base = 'static'
 
-# By default, PygameAssets loads assets from subfolders named after the asset type (in singular form).
-# You can register other subfolders for a given asset type.
+# By default, PygameAssets loads assets from subfolders named after the loader.
+# You can register other subfolders for a given loader.
 
-assets.config.dirs['image'].append('icons')
-# PygameAssets will now also look for images in 'static/icons'.
+assets.config.dirs['spritesheet'].append('sheets')
+# PygameAssets will now also look for spritesheets in 'static/sheets'.
 
 # By default, PygameAssets looks for custom loaders in a local custom_loaders.py file.
 # You may redefine the path to that file too.
 assets.config.custom_loaders_location = 'src.path.to.custom_loaders'
 ```
-
-
-## Documentation
-
-You can view the full documentation at [ReadTheDocs](#).
