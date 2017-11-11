@@ -4,7 +4,7 @@ import os
 import unittest
 from contextlib import contextmanager
 
-from pygame_assets import core
+from pygame_assets import core, load
 from pygame_assets.exceptions import AssetNotFoundError
 from pygame_assets.configure import get_config, set_environ_config, Config
 
@@ -33,8 +33,37 @@ def define_test_loader(name):
     core.unregister(name)
 
 
+class TestLoadAPI(unittest.TestCase):
+    """Unit tests for the pygame_assets.load API."""
+
+    def test_access_predefined_loaders(self):
+        for loader_name in core.loaders:
+            # equivalent to load.<loader_name>
+            getattr(load, loader_name)
+
+    def test_load_existing_asset(self):
+        with define_test_loader('text'):
+            # write a test file.
+            text_path = get_config().search_paths('text', 'test.txt')[0]
+            with open(text_path, 'w') as textfile:
+                textfile.write('TEST!')
+
+            # load the asset using the pygame_assets.load API.
+            text = load.text('test.txt')
+            self.assertEqual('TEST!', text)
+
+    def test_load_non_existing_asset_fails(self):
+        with define_test_loader('text'):
+            with self.assertRaises(AssetNotFoundError):
+                load.text('does_not_exist.txt')
+
+    def test_get_undefined_loader_raises_attribute_error(self):
+        with self.assertRaises(AttributeError):
+            getattr(core.load, 'undefined!')
+
+
 class TestAssetLoader(unittest.TestCase):
-    """Unit tests for the the base loader."""
+    """Unit tests for the the core loader functions."""
 
     def setUp(self):
         set_environ_config('test')
@@ -53,35 +82,33 @@ class TestAssetLoader(unittest.TestCase):
         core.unregister('special')
 
     def test_load_asset(self):
-        with define_test_loader('text') as load_text:
-            # create a temporary test.txt file to load
-            text_path = get_config().search_paths('text', 'test.txt')[0]
-            with open(text_path, 'w') as textfile:
-                textfile.write('TEST!')
+        asset_type = 'text'
+        get_config().add_default_dir(asset_type)
 
-            text = load_text('test.txt')
-            self.assertEqual('TEST!', text)
+        filename = 'test.txt'
+        content = 'TEST!'
 
-            # cleanup
-            os.remove(text_path)
+        # define a get_asset function
+        def get_text(filepath):
+            with open(filepath) as textfile:
+                text = textfile.read()
+            return text
 
-    def test_load_non_existing_asset_fails(self):
-        with define_test_loader('text') as load_text:
-            with self.assertRaises(AssetNotFoundError):
-                load_text('does_not_exist.txt')
+        # get search_paths
+        search_paths = get_config().search_paths(asset_type, filename)
 
+        # write in the test file.
+        text_path = search_paths[0]
+        with open(text_path, 'w') as textfile:
+            textfile.write(content)
 
-class TestLoadApi(unittest.TestCase):
-    """Unit tests for the pygame_assets.load API."""
+        # use the core load_asset function to load the text asset
+        text = core.load_asset(get_text, filename, search_paths)
+        self.assertEqual(content, text)
 
-    def test_access_predefined_loaders(self):
-        for loader_name in core.loaders:
-            # equivalent to load.<loader_name>
-            getattr(core.load, loader_name)
-
-    def test_get_undefined_loader_raises_attribute_error(self):
-        with self.assertRaises(AttributeError):
-            getattr(core.load, 'undefined!')
+        # cleanup
+        os.remove(text_path)
+        get_config().remove_dirs(asset_type)
 
 
 class TestRegisterApi(unittest.TestCase):

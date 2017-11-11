@@ -9,7 +9,7 @@ loaders = {}
 
 
 def register(asset_type, asset_loader, returned=None):
-    """Register a loader, making it available in the loaders dict.
+    """Register a loader, making it available in pygame_assets.load.
 
     Parameters
     ----------
@@ -49,8 +49,8 @@ def unregister(asset_type, in_config=True):
 def loader(name=None):
     """Decorator to register a loader.
 
-    The decorated function must take a filepath as a first argument.
-    Note: it can have any other positional or keyword arguments.
+    The decorated function must take a filepath as its first argument.
+    It can then have any other positional or keyword arguments.
 
     Unless explicitely passed, the loader's name will be the decorated
     function's name.
@@ -67,8 +67,8 @@ def loader(name=None):
 
     Parameters
     ----------
-    asset_type : str
-        The asset type this loader supports.
+    name : str
+        The name of the loader and its asset type.
     """
     def create_asset_loader(get_asset):
         asset_type = name or get_asset.__name__
