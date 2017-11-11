@@ -52,7 +52,7 @@ asset = pygame_assets.load.<loader_name>(filename, ...)
 
 PygameAssets has the following loaders built-in: `image`, `image_with_rect`, `sound`, `music`, `font`, `freetype`.
 
-See the documentation for full API reference for each asset type.
+See the documentation for full API reference of each loader.
 
 ### Custom loaders
 
