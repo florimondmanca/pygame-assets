@@ -98,11 +98,9 @@ import pygame_assets as assets
 # Redefine the name of the assets base directory ('assets' by default)
 assets.config.base = 'static'
 
-# By default, PygameAssets loads assets from subfolders named after the loader.
-# You can register other subfolders for a given loader.
-
+# You can register other search directories for a any registered loader.
 assets.config.dirs['spritesheet'].append('sheets')
-# PygameAssets will now also look for spritesheets in 'static/sheets'.
+# => PygameAssets will now also look for spritesheets in 'static/sheets'.
 
 # By default, PygameAssets looks for custom loaders in a local custom_loaders.py file.
 # You may redefine the path to that file too.
