@@ -23,8 +23,8 @@ class Config(metaclass=ConfigMeta):
     """Config object that allows project-specific configuration."""
 
     name = 'default'
-    base = 'assets'
-    custom_loaders_location = 'custom_loaders'
+    base = './assets'
+    custom_loaders_location = 'asset_loaders'
     dirs = {}
 
     @classmethod

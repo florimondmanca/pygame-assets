@@ -24,14 +24,20 @@ my_project $ mkdir assets/
 
 Want to load an image called `player.png`?
 
-
 1. Drop `player.png` into `assets/image`
 2. Load the image in your game:
 ```python
+
+import pygame
 import pygame_assets as assets
+
+# make sure to set_mode()
+screen = pygame.display.set_mode((800, 600))
 
 player_img = assets.load.image('player.png')
 ```
+
+Tada! :tada:
 
 Bonus points: PygameAssets takes charge of any boilerplate, which means the `assets.load.image` function automatically calls `convert_alpha()` on your image if needed. Check out the documentation for more details.
 

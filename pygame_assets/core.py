@@ -1,5 +1,5 @@
 """The core of pygame-assets."""
-import pygame
+import os
 from .exceptions import AssetNotFoundError
 from .configure import get_config
 
@@ -107,11 +107,13 @@ def load_asset(get_asset, filename, search_paths, *args, **kwargs):
         The asset's filename.
     """
     for filepath in search_paths:
+        if not os.path.isfile(filepath):
+            continue
         try:
             return get_asset(filepath, *args, **kwargs)
-        except (FileNotFoundError, pygame.error):
+        except FileNotFoundError:
             pass
-    raise AssetNotFoundError(filename)
+    raise AssetNotFoundError(filename, search_paths)
 
 
 class LoaderIndex:

@@ -10,6 +10,9 @@ def image(filepath, *, alpha=None):
 
     If image has alpha, calls .convert_alpha() on it.
 
+    Note: as in regular pygame, pygame.display.set_mode() must have been
+    called to load images.
+
     Parameters
     ----------
     filepath : str

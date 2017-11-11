@@ -3,22 +3,8 @@
 import pygame
 import pygame_assets as assets  # let's see what we can do with this!
 
-# You can configure the assets base directory (the default being 'assets').
-assets.config.base = 'static'
-
-# You can register new directories for assets.
-# The line below means pygame-assets will also look for images in the
-# static/icons folder.
+# Add the icons folders in search directories for the image loader.
 assets.config.dirs['image'].append('icons')
-
-# You can change the location where pygame-assets finds your custom loaders.
-# Useful just in case the default 'custom_loaders.py' collides with one of
-# your existing modules (not so likely, though).
-assets.config.custom_loaders_location = 'myloaders'
-
-# Only required because the default config was changed.
-# Note: it is safe to initialize pygame-assets several times.
-assets.init()
 
 
 def mainloop():
@@ -41,11 +27,6 @@ def mainloop():
     player_speed = 200
     move_left = False
     move_right = False
-
-    # we could also create a spritesheet using our custom spritesheet loader
-    # (here, the one defined in myloaders.py is a dummy loader)
-    spritesheet = assets.load.spritesheet('some_name.png')
-    assert spritesheet == 'dummy spritesheet'
 
     # below: just to have a simple game loop, the magic happened before. ;)
     running = True
