@@ -17,20 +17,20 @@ class TestConfig(Config):
 
 
 @contextmanager
-def define_test_loader():
+def define_test_loader(name):
     """Utility context manager.
 
     1. Creates a text loader which gets registered to pygame_assets,
     2. Yields the loader,
     3. Cleans up by unregistering the loader from pygame_assets.
     """
-    @core.loader(name='text')
+    @core.loader(name=name)
     def load_text(filepath):
         with open(filepath, 'r') as textfile:
             text = textfile.read()
         return text
     yield load_text
-    core.unregister('text')
+    core.unregister(name)
 
 
 class TestAssetLoader(unittest.TestCase):
@@ -50,10 +50,10 @@ class TestAssetLoader(unittest.TestCase):
         self.assertIn('special', config.dirs)
         self.assertListEqual(config.dirs['special'], ['special'])
 
-        del core.loaders['special']
+        core.unregister('special')
 
     def test_load_asset(self):
-        with define_test_loader() as load_text:
+        with define_test_loader('text') as load_text:
             # create a temporary test.txt file to load
             text_path = get_config().search_paths('text', 'test.txt')[0]
             with open(text_path, 'w') as textfile:
@@ -66,7 +66,7 @@ class TestAssetLoader(unittest.TestCase):
             os.remove(text_path)
 
     def test_load_non_existing_asset_fails(self):
-        with define_test_loader() as load_text:
+        with define_test_loader('text') as load_text:
             with self.assertRaises(AssetNotFoundError):
                 load_text('does_not_exist.txt')
 
