@@ -2,60 +2,35 @@
 
 import os
 import unittest
+from contextlib import contextmanager
 
-from pygame_assets.core import AssetLoader, AssetLoaderMeta
-from pygame_assets.exceptions import InvalidAssetLoaderNameError, \
-    AssetNotFoundError
+from pygame_assets import core
+from pygame_assets.exceptions import AssetNotFoundError
 from pygame_assets.configure import get_config, set_environ_config, Config
 
 
 class TestConfig(Config):
-    """Test configuration to redefine the base assets directory."""
+    """Configuration for tests. Redefines the base assets directory."""
 
     name = 'test'
     base = 'tests/assets'
 
 
-class TestAssetLoaderMeta(unittest.TestCase):
-    """Unit tests for AssetLoaderMeta, the metaclass of AssetLoader."""
+@contextmanager
+def define_test_loader():
+    """Utility context manager.
 
-    # main functional test
-    def test_asset_type_of_a_dummy_loader(self):
-        class DummyLoader(metaclass=AssetLoaderMeta):
-            pass
-
-        self.assertEqual('dummy', DummyLoader.asset_type)
-
-    # detailed unit tests
-
-    def test_get_asset_type_for_oneword_names(self):
-        expected_asset_types = {
-            'ImageLoader': 'image',
-            'SoundLoader': 'sound',
-            'FontsLoader': 'fonts',
-        }
-        for class_name, expected in expected_asset_types.items():
-            actual = AssetLoaderMeta.get_asset_type(class_name)
-            self.assertEqual(expected, actual)
-
-    def test_get_asset_type_for_multiword_names(self):
-        expected_asset_types = {
-            'SoundEffectLoader': 'soundeffect',
-            'SpritesheetLoader': 'spritesheet',
-        }
-        for class_name, expected in expected_asset_types.items():
-            actual = AssetLoaderMeta.get_asset_type(class_name)
-            self.assertEqual(expected, actual)
-
-    def test_get_asset_type_without_loader_in_name(self):
-        for name in ('Sounds', 'ImgLoad'):
-            with self.assertRaises(InvalidAssetLoaderNameError):
-                AssetLoaderMeta.get_asset_type(name)
-
-    def test_create_asset_loader_bad_name(self):
-        with self.assertRaises(InvalidAssetLoaderNameError):
-            class SoundLo(metaclass=AssetLoaderMeta):
-                """The name should end with 'Loader'."""
+    1. Creates a text loader which gets registered to pygame_assets,
+    2. Yields the loader,
+    3. Cleans up by unregistering the loader from pygame_assets.
+    """
+    @core.loader(name='text')
+    def load_text(filepath):
+        with open(filepath, 'r') as textfile:
+            text = textfile.read()
+        return text
+    yield load_text
+    core.unregister('text')
 
 
 class TestAssetLoader(unittest.TestCase):
@@ -64,71 +39,90 @@ class TestAssetLoader(unittest.TestCase):
     def setUp(self):
         set_environ_config('test')
 
-    def test_meta_class_is_asset_loader_meta(self):
-        self.assertEqual(type(AssetLoader), AssetLoaderMeta)
-
-    def test_get_asset_raises_not_implemented(self):
-        loader = AssetLoader()
-        with self.assertRaises(NotImplementedError):
-            loader.get_asset('image.png')
-
     def test_new_loader_adds_default_dir_list_to_config(self):
         config = get_config()
         self.assertNotIn('special', config.dirs)
 
-        class SpecialLoader(AssetLoader):
+        @core.loader()
+        def special(filepath):
             pass
 
         self.assertIn('special', config.dirs)
         self.assertListEqual(config.dirs['special'], ['special'])
 
+        del core.loaders['special']
+
     def test_load_asset(self):
-        class TextLoader(AssetLoader):
+        with define_test_loader() as load_text:
+            # create a temporary test.txt file to load
+            text_path = get_config().search_paths('text', 'test.txt')[0]
+            with open(text_path, 'w') as textfile:
+                textfile.write('TEST!')
 
-            def get_asset(self, filepath):
-                with open(filepath, 'r') as textfile:
-                    text = textfile.read()
-                    return text
+            text = load_text('test.txt')
+            self.assertEqual('TEST!', text)
 
-        # create a temporary test.txt file to load
-        text_path = list(get_config().search_paths('text', 'test.txt'))[0]
-        with open(text_path, 'w') as textfile:
-            textfile.write('TEST!')
-
-        text = TextLoader().load('test.txt')
-        self.assertEqual('TEST!', text)
-
-        # cleanup temp test.txt file
-        os.remove(text_path)
+            # cleanup
+            os.remove(text_path)
 
     def test_load_non_existing_asset_fails(self):
-        class TextLoader(AssetLoader):
+        with define_test_loader() as load_text:
+            with self.assertRaises(AssetNotFoundError):
+                load_text('does_not_exist.txt')
 
-            def get_asset(self, filepath):
-                with open(filepath, 'r') as textfile:
-                    text = textfile.read()
-                return text
 
-        with self.assertRaises(AssetNotFoundError):
-            TextLoader().load('does_not_exist.txt')
+class TestLoadApi(unittest.TestCase):
+    """Unit tests for the pygame_assets.load API."""
 
-    def test_loader_as_function(self):
-        class ToolsImageLoader(AssetLoader):
+    def test_access_predefined_loaders(self):
+        for loader_name in core.loaders:
+            # equivalent to load.<loader_name>
+            getattr(core.load, loader_name)
 
-            def get_asset(self, filepath, *tools):
-                return 'Loading image using {}'.format(', '.join(tools))
+    def test_get_undefined_loader_raises_attribute_error(self):
+        with self.assertRaises(AttributeError):
+            getattr(core.load, 'undefined!')
 
-        toolsimage = ToolsImageLoader.as_function()
-        result = toolsimage('image.png', 'hammer', 'saw', 'scissors')
-        self.assertEqual('Loading image using hammer, saw, scissors',
-                         result)
 
-    def test_loader_as_function_docs_is_get_asset_docs(self):
-        class DummyLoader(AssetLoader):
-            pass
+class TestRegisterApi(unittest.TestCase):
+    """Unit tests for the loaders.register API."""
 
-        dummy = DummyLoader.as_function()
-        self.assertEqual(dummy.__doc__, DummyLoader.get_asset.__doc__)
+    def test_register_dummy_loader(self):
+        with self.assertRaises(AttributeError):
+            core.load.text
+
+        def load_text(filename):
+            return 'Loading {}...'.format(filename)
+
+        # normally you'd register a real @loader() function.
+        core.register('text', load_text)
+
+        self.assertEqual(core.loaders['text'], load_text)
+        self.assertEqual('Loading foo.txt...', core.load.text('foo.txt'))
+
+        # cleanup
+        core.unregister('text', in_config=False)
+
+    def test_unregister_dummy_loader(self):
+
+        def load_text(filename):
+            return 'Loading {}...'.format(filename)
+
+        core.register('text', load_text)
+        self.assertIn('text', core.loaders)
+        core.unregister('text', in_config=False)
+        self.assertNotIn('text', core.loaders)
+
+    def test_unregister_loader_removes_asset_type_from_config(self):
+        @core.loader(name='text')
+        def load_text(filepath):
+            with open(filepath, 'r') as textfile:
+                text = textfile.read()
+            return text
+
+        self.assertIn('text', get_config().dirs)
+        core.unregister('text')
+        self.assertNotIn('text', get_config().dirs)
 
 
 if __name__ == '__main__':

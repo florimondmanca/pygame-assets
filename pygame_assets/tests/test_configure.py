@@ -74,5 +74,5 @@ class TestConfigure(unittest.TestCase):
         config.base = 'assets'
         config.dirs['spritesheet'] = ['spritesheet', 'sheets']
         expected = ['assets/spritesheet', 'assets/sheets']
-        actual = list(config.search_dirs('spritesheet'))
+        actual = config.search_dirs('spritesheet')
         self.assertListEqual(expected, actual)
