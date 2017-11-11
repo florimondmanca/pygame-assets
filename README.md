@@ -1,6 +1,6 @@
 # Pygame Assets
 
-PygameAssets is a lightweight asset manager for Pygame applications and games, designed to be pluggable, extensible and highly configurable.
+PygameAssets is a lightweight asset manager for Pygame applications and games, designed to be pluggable, extensible and configurable.
 
 ## Installation
 
@@ -39,24 +39,28 @@ player_img = assets.load.image('player.png')
 
 Tada! :tada:
 
-Bonus points: PygameAssets takes charge of any boilerplate, which means the `assets.load.image` function automatically calls `convert_alpha()` on your image if needed. Check out the documentation for more details.
+Bonus points: PygameAssets takes charge of all the boilerplate, which means `assets.load.image` will automatically call `convert_alpha()` on your image if needed.
 
+
+## Is this magic?
 
 In fact, much of PygameAssets' API boils down to the `pygame_assets.load` object which gives you access to PygameAssets' **loaders**.
 
-The generic syntax for `pygame_assets.load` is the following:
+The generic syntax to use a loader is the following:
 
 ```python
 asset = pygame_assets.load.<loader_name>(filename, ...)
 ```
 
-> Each loader will expect to find assets in the `assets/<loader_name>` folder. That's why we previously dropped our `player.png` file into `assets/image`.
+Each loader expects to find assets in `assets/<loader_name>`. That's why we previously dropped `player.png` into `assets/image`.
 
 ### Built-in loaders
 
 PygameAssets has the following loaders built-in: `image`, `image_with_rect`, `sound`, `music`, `font`, `freetype`.
 
 See the documentation for full API reference of each loader.
+
+## Customize me!
 
 ### Custom loaders
 
