@@ -151,6 +151,13 @@ class TestRegisterApi(unittest.TestCase):
         core.unregister('text')
         self.assertNotIn('text', get_config().dirs)
 
+    def test_register_with_returned_function(self):
+        def load_text(filename):
+            return 'Loading {}...'.format(filename)
+        core.register('text', load_text, returned=lambda text: text.upper())
+        text = load.text('foo.txt')
+        self.assertEqual(text, 'LOADING FOO.TXT...')
+
 
 if __name__ == '__main__':
     unittest.main()

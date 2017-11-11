@@ -24,9 +24,9 @@ def register(asset_type, asset_loader, returned=None):
         def loader_with_returned(filename, *args, **kwargs):
             asset = asset_loader(filename, *args, **kwargs)
             return returned(asset)
-        asset_loader = loader_with_returned
-
-    loaders[asset_type] = asset_loader
+        loaders[asset_type] = loader_with_returned
+    else:
+        loaders[asset_type] = asset_loader
 
 
 def unregister(asset_type, in_config=True):

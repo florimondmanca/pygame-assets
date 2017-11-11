@@ -17,14 +17,14 @@ def image(filepath, *, alpha=None):
     Can be used to force alpha conversion.
     Default behavior is to detect alpha using .get_alpha().
     """
-    image = pygame.image.load(filepath)
+    img = pygame.image.load(filepath)
     if alpha is None:
-        alpha = image.get_alpha() is not None
+        alpha = img.get_alpha() is not None
         if alpha:
-            image = image.convert_alpha()
+            img = img.convert_alpha()
         else:
-            image = image.convert()
-            return image
+            img = img.convert()
+    return img
 
 
 @loader()
