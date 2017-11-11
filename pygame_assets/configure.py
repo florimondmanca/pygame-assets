@@ -66,13 +66,6 @@ class Config(metaclass=ConfigMeta):
         return super().__str__()
 
 
-class TestConfig(Config):
-    """Config for tests."""
-
-    name = 'test'
-    base = 'tests/assets'
-
-
 def get_config(name=None):
     """Return a config.
 

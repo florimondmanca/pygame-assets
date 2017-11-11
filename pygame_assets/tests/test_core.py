@@ -1,10 +1,19 @@
 """Tests for the core module."""
 
+import os
 import unittest
 
 from pygame_assets.core import AssetLoader, AssetLoaderMeta
-from pygame_assets.exceptions import InvalidAssetLoaderNameError
-from pygame_assets.configure import get_config
+from pygame_assets.exceptions import InvalidAssetLoaderNameError, \
+    AssetNotFoundError
+from pygame_assets.configure import get_config, set_environ_config, Config
+
+
+class TestConfig(Config):
+    """Test configuration to redefine the base assets directory."""
+
+    name = 'test'
+    base = 'tests/assets'
 
 
 class TestAssetLoaderMeta(unittest.TestCase):
@@ -52,6 +61,9 @@ class TestAssetLoaderMeta(unittest.TestCase):
 class TestAssetLoader(unittest.TestCase):
     """Unit tests for the the base loader."""
 
+    def setUp(self):
+        set_environ_config('test')
+
     def test_meta_class_is_asset_loader_meta(self):
         self.assertEqual(type(AssetLoader), AssetLoaderMeta)
 
@@ -70,17 +82,45 @@ class TestAssetLoader(unittest.TestCase):
         self.assertIn('special', config.dirs)
         self.assertListEqual(config.dirs['special'], ['special'])
 
-    # TODO test the load() function
+    def test_load_asset(self):
+        class TextLoader(AssetLoader):
+
+            def get_asset(self, filepath):
+                with open(filepath, 'r') as textfile:
+                    text = textfile.read()
+                    return text
+
+        # create a temporary test.txt file to load
+        text_path = list(get_config().search_paths('text', 'test.txt'))[0]
+        with open(text_path, 'w') as textfile:
+            textfile.write('TEST!')
+
+        text = TextLoader().load('test.txt')
+        self.assertEqual('TEST!', text)
+
+        # cleanup temp test.txt file
+        os.remove(text_path)
+
+    def test_load_non_existing_asset_fails(self):
+        class TextLoader(AssetLoader):
+
+            def get_asset(self, filepath):
+                with open(filepath, 'r') as textfile:
+                    text = textfile.read()
+                return text
+
+        with self.assertRaises(AssetNotFoundError):
+            TextLoader().load('does_not_exist.txt')
 
     def test_loader_as_function(self):
-        class DummyLoader(AssetLoader):
+        class ToolsImageLoader(AssetLoader):
 
             def get_asset(self, filepath, *tools):
-                return 'Loading asset using {}'.format(', '.join(tools))
+                return 'Loading image using {}'.format(', '.join(tools))
 
-        dummy = DummyLoader.as_function()
-        result = dummy('image.png', 'hammer', 'saw', 'scissors')
-        self.assertEqual('Loading asset using hammer, saw, scissors',
+        toolsimage = ToolsImageLoader.as_function()
+        result = toolsimage('image.png', 'hammer', 'saw', 'scissors')
+        self.assertEqual('Loading image using hammer, saw, scissors',
                          result)
 
     def test_loader_as_function_docs_contains_asset_type(self):

@@ -52,6 +52,8 @@ class TestConfigure(unittest.TestCase):
         self.assertEqual('assets', config.base)
         config.base = 'static'
         self.assertEqual('static', config.base)
+        # cleanup
+        config.base = 'assets'
 
     def test_new_config_is_registered_to_get_config(self):
         # assert custom config does not exist already

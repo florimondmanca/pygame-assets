@@ -60,7 +60,7 @@ class AssetLoader(metaclass=AssetLoaderMeta):
             try:
                 asset = self.get_asset(filepath, *args, **kwargs)
                 return asset
-            except pygame.error as e:
+            except (pygame.error, FileNotFoundError):
                 pass
         raise AssetNotFoundError(filename)
 
