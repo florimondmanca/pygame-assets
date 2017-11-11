@@ -4,7 +4,7 @@ from .exceptions import AssetNotFoundError
 from .configure import get_config
 
 
-# mapping of asset types to their loader.
+# mapping of names to the corresponding loader.
 loaders = {}
 
 
@@ -40,7 +40,7 @@ def unregister(name, in_config=True):
     name : str
         The name of the loader to unregister.
     in_config : bool, optional
-        If True (the default), unregisters the asset type from search
+        If True (the default), unregisters the loader from search
         directories in the config (as obtained by get_config()).
     """
     del loaders[name]
@@ -70,12 +70,12 @@ def loader(name=None):
     Parameters
     ----------
     name : str
-        The name of the loader and its asset type.
+        The name of the loader.
     """
     def create_asset_loader(get_asset):
         loader_name = name or get_asset.__name__
 
-        # register default search directory for the asset type
+        # register default search directory for the loader
         get_config().add_default_dir(loader_name)
 
         # build the asset loader using load()
