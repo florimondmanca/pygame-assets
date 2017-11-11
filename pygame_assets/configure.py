@@ -84,16 +84,27 @@ def get_config(name=None):
         will be used. If not defined, the default config will be returned.
     """
     if name is None:
-        name = os.environ.get(_CONFIG_ENV_VAR, 'default')
+        name = get_environ_config() or 'default'
     return CONFIGS[name]
 
 
-def set_environ_config(name=None):
+def get_environ_config():
+    """Get the config name from the shell environment.
+
+    If not defined, return None.
+    """
+    return os.environ.get(_CONFIG_ENV_VAR, None)
+
+
+def set_environ_config(name):
     """Set the config environment variable.
 
     If name is None, clear the config environment variable.
     """
-    if name:
-        os.environ.setdefault(_CONFIG_ENV_VAR, name)
+    if name is None:
+        try:
+            del os.environ[_CONFIG_ENV_VAR]
+        except KeyError:
+            pass
     else:
-        os.environ.pop(_CONFIG_ENV_VAR)
+        os.environ.setdefault(_CONFIG_ENV_VAR, name)

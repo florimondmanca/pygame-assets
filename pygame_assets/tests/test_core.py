@@ -4,42 +4,7 @@ import unittest
 
 from pygame_assets.core import AssetLoader, AssetLoaderMeta
 from pygame_assets.exceptions import InvalidAssetLoaderNameError
-from pygame_assets.configure import get_config, set_environ_config, Config
-
-
-class TestConfig(unittest.TestCase):
-    """Unit tests for the Config API."""
-
-    def test_get_config_from_env_var(self):
-        class MyConfig(Config):
-            name = 'myconfig'
-
-        set_environ_config('myconfig')
-        config = get_config()
-        self.assertEqual('myconfig', config.name)
-
-    def test_load_default_config(self):
-        set_environ_config(None)
-        config = get_config()
-        self.assertEqual(config.name, 'default')
-
-    def test_load_test_config(self):
-        config = get_config('test')
-        self.assertEqual(config.name, 'test')
-
-    def test_create_new_config(self):
-        # verify special config does not exist already
-        with self.assertRaises(KeyError):
-            get_config('special')
-
-        class SpecialConfig(Config):
-            name = 'special'
-            base = 'special/assets'
-
-        # special config should now be available through get_config()
-        config = get_config('special')
-        self.assertEqual('special', config.name)
-        self.assertEqual('special/assets', config.base)
+from pygame_assets.configure import get_config
 
 
 class TestAssetLoaderMeta(unittest.TestCase):
@@ -81,7 +46,7 @@ class TestAssetLoaderMeta(unittest.TestCase):
     def test_create_asset_loader_bad_name(self):
         with self.assertRaises(InvalidAssetLoaderNameError):
             class SoundLo(metaclass=AssetLoaderMeta):
-                """This should end with 'Loader'."""
+                """The name should end with 'Loader'."""
 
 
 class TestAssetLoader(unittest.TestCase):
@@ -94,6 +59,18 @@ class TestAssetLoader(unittest.TestCase):
         loader = AssetLoader()
         with self.assertRaises(NotImplementedError):
             loader.get_asset('image.png')
+
+    def test_new_loader_adds_default_dir_list_to_config(self):
+        config = get_config()
+        self.assertNotIn('special', config.dirs)
+
+        class SpecialLoader(AssetLoader):
+            pass
+
+        self.assertIn('special', config.dirs)
+        self.assertListEqual(config.dirs['special'], ['special'])
+
+    # TODO test the load() function
 
     def test_loader_as_function(self):
         class DummyLoader(AssetLoader):
