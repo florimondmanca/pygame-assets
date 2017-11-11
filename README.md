@@ -1,8 +1,6 @@
 # Pygame Assets
 
-PygameAssets is a lightweight asset manager for Pygame applications and games.
-
-PygameAssets is plug-and-play: just install it, create an `assets` folder in your project directory, drop your assets in and you're ready to go!
+PygameAssets is a lightweight asset manager for Pygame applications and games, designed to be pluggable, extensible and highly configurable.
 
 ## Installation
 
