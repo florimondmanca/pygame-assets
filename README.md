@@ -102,7 +102,7 @@ assets.config.base = 'static'
 assets.config.dirs['spritesheet'].append('sheets')
 # => PygameAssets will now also look for spritesheets in 'static/sheets'.
 
-# By default, PygameAssets looks for custom loaders in a local custom_loaders.py file.
-# You may redefine the path to that file too.
-assets.config.custom_loaders_location = 'src.path.to.custom_loaders'
+# By default, PygameAssets looks for custom loaders in a local `asset_loaders` module.
+# You can redefine the path to that module too.
+assets.config.custom_loaders_location = 'src.path.to.my.loaders.module'
 ```
