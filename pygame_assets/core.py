@@ -3,55 +3,9 @@
 Provides basic asset loading workflow, with error management and
 conversion to a plain function.
 """
-import os
 import pygame
 from .exceptions import AssetNotFoundError, InvalidAssetLoaderNameError
-
-
-class config:
-    """Config object that allows project-specific configuration."""
-
-    base = 'assets'
-    custom_loaders_location = 'custom_loaders'
-    dirs = {}
-
-    @classmethod
-    def add_default_dir(cls, loader_class):
-        """Add the default directory for a loader class to the config."""
-        asset_type = loader_class.asset_type
-        if asset_type not in cls.dirs:
-            cls.dirs[asset_type] = [asset_type]
-
-    @classmethod
-    def search_dirs(cls, asset_type):
-        """Return directories where to search assets of this type.
-
-        Returned as a generator.
-
-        Parameters
-        ----------
-        asset_type : str
-        """
-        dirs = cls.dirs.get(asset_type, [asset_type])
-        return (os.path.join(cls.base, dir_) for dir_ in dirs)
-
-    @classmethod
-    def search_paths(cls, asset_type, filename):
-        """Return file paths where to search this asset.
-
-        Returned as a generator.
-
-        Parameters
-        ----------
-        asset_type : str
-        filename : str
-        """
-        search_dirs = cls.search_dirs(asset_type)
-        return (os.path.join(dir_, filename) for dir_ in search_dirs)
-
-    def __str__(self):
-        # TODO print the config's parameters
-        return super().__str__()
+from .configure import get_config
 
 
 class AssetLoaderMeta(type):
@@ -70,7 +24,7 @@ class AssetLoaderMeta(type):
         cls.asset_type = asset_type
 
         # create the config default search dir for newly created loader class
-        config.add_default_dir(cls)
+        get_config().add_default_dir(cls)
 
     def get_asset_type(name):
         if 'loader' not in name.lower():
@@ -101,7 +55,7 @@ class AssetLoader(metaclass=AssetLoaderMeta):
         filename : str
             The asset's filename, e.g. 'my-image.png'.
         """
-        search_paths = config.search_paths(self.asset_type, filename)
+        search_paths = get_config().search_paths(self.asset_type, filename)
         for filepath in search_paths:
             try:
                 asset = self.get_asset(filepath, *args, **kwargs)

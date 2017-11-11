@@ -4,6 +4,42 @@ import unittest
 
 from pygame_assets.core import AssetLoader, AssetLoaderMeta
 from pygame_assets.exceptions import InvalidAssetLoaderNameError
+from pygame_assets.configure import get_config, set_environ_config, Config
+
+
+class TestConfig(unittest.TestCase):
+    """Unit tests for the Config API."""
+
+    def test_get_config_from_env_var(self):
+        class MyConfig(Config):
+            name = 'myconfig'
+
+        set_environ_config('myconfig')
+        config = get_config()
+        self.assertEqual('myconfig', config.name)
+
+    def test_load_default_config(self):
+        set_environ_config(None)
+        config = get_config()
+        self.assertEqual(config.name, 'default')
+
+    def test_load_test_config(self):
+        config = get_config('test')
+        self.assertEqual(config.name, 'test')
+
+    def test_create_new_config(self):
+        # verify special config does not exist already
+        with self.assertRaises(KeyError):
+            get_config('special')
+
+        class SpecialConfig(Config):
+            name = 'special'
+            base = 'special/assets'
+
+        # special config should now be available through get_config()
+        config = get_config('special')
+        self.assertEqual('special', config.name)
+        self.assertEqual('special/assets', config.base)
 
 
 class TestAssetLoaderMeta(unittest.TestCase):
@@ -62,8 +98,8 @@ class TestAssetLoader(unittest.TestCase):
     def test_loader_as_function(self):
         class DummyLoader(AssetLoader):
 
-            def get_asset(self, filepath, a, b, c):
-                return 'Loading asset using {}'.format(', '.join((a, b, c)))
+            def get_asset(self, filepath, *tools):
+                return 'Loading asset using {}'.format(', '.join(tools))
 
         dummy = DummyLoader.as_function()
         result = dummy('image.png', 'hammer', 'saw', 'scissors')
