@@ -82,8 +82,8 @@ class TestAssetLoader(unittest.TestCase):
         core.unregister('special')
 
     def test_load_asset(self):
-        asset_type = 'text'
-        get_config().add_default_dir(asset_type)
+        loader_name = 'text'
+        get_config().add_default_dir(loader_name)
 
         filename = 'test.txt'
         content = 'TEST!'
@@ -95,7 +95,7 @@ class TestAssetLoader(unittest.TestCase):
             return text
 
         # get search_paths
-        search_paths = get_config().search_paths(asset_type, filename)
+        search_paths = get_config().search_paths(loader_name, filename)
 
         # write in the test file.
         text_path = search_paths[0]
@@ -108,7 +108,7 @@ class TestAssetLoader(unittest.TestCase):
 
         # cleanup
         os.remove(text_path)
-        get_config().remove_dirs(asset_type)
+        get_config().remove_dirs(loader_name)
 
 
 class TestRegisterApi(unittest.TestCase):
@@ -140,7 +140,7 @@ class TestRegisterApi(unittest.TestCase):
         core.unregister('text', in_config=False)
         self.assertNotIn('text', core.loaders)
 
-    def test_unregister_loader_removes_asset_type_from_config(self):
+    def test_unregister_loader_removes_loader_name_from_config(self):
         @core.loader(name='text')
         def load_text(filepath):
             with open(filepath, 'r') as textfile:

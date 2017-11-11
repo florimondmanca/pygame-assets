@@ -40,12 +40,12 @@ class TestConfigure(unittest.TestCase):
         config = get_config()
         self.assertEqual('myconfig', config.name)
 
-    def test_config_dirs_is_dict_of_asset_type_and_dirs(self):
+    def test_config_dirs_is_dict_of_loader_names_and_dirs(self):
         config = get_config()
-        for asset_type, dirs in config.dirs.items():
-            self.assertIsInstance(asset_type, str)
+        for loader_name, dirs in config.dirs.items():
+            self.assertIsInstance(loader_name, str)
             self.assertIsInstance(dirs, list)
-            self.assertIn(asset_type, dirs)
+            self.assertIn(loader_name, dirs)
 
     def test_set_config_base(self):
         config = get_config()

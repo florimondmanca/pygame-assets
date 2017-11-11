@@ -8,12 +8,13 @@ from .configure import get_config
 loaders = {}
 
 
-def register(asset_type, asset_loader, returned=None):
+def register(name, asset_loader, returned=None):
     """Register a loader, making it available in pygame_assets.load.
 
     Parameters
     ----------
-    asset_type : str
+    name : str
+        The loader's name.
     asset_loader : function
         An asset loader as returned by the pygame_assets.loader decorator.
     returned : function, optional
@@ -24,26 +25,27 @@ def register(asset_type, asset_loader, returned=None):
         def loader_with_returned(filename, *args, **kwargs):
             asset = asset_loader(filename, *args, **kwargs)
             return returned(asset)
-        loaders[asset_type] = loader_with_returned
+        loaders[name] = loader_with_returned
     else:
-        loaders[asset_type] = asset_loader
+        loaders[name] = asset_loader
 
 
-def unregister(asset_type, in_config=True):
+def unregister(name, in_config=True):
     """Unregister a loader.
 
-    Raises a KeyError if no loader exists for asset_type.
+    Raises a KeyError if no loader called `name` exists.
 
     Parameters
     ----------
-    asset_type : str
+    name : str
+        The name of the loader to unregister.
     in_config : bool, optional
         If True (the default), unregisters the asset type from search
         directories in the config (as obtained by get_config()).
     """
-    del loaders[asset_type]
+    del loaders[name]
     if in_config:
-        get_config().remove_dirs(asset_type)
+        get_config().remove_dirs(name)
 
 
 def loader(name=None):
@@ -71,19 +73,19 @@ def loader(name=None):
         The name of the loader and its asset type.
     """
     def create_asset_loader(get_asset):
-        asset_type = name or get_asset.__name__
+        loader_name = name or get_asset.__name__
 
         # register default search directory for the asset type
-        get_config().add_default_dir(asset_type)
+        get_config().add_default_dir(loader_name)
 
         # build the asset loader using load()
         def asset_loader(filename, *args, **kwargs):
-            search_paths = get_config().search_paths(asset_type, filename)
+            search_paths = get_config().search_paths(loader_name, filename)
             asset = load_asset(get_asset, filename, search_paths,
                                *args, **kwargs)
             return asset
 
-        register(asset_type, asset_loader)
+        register(loader_name, asset_loader)
         return asset_loader
 
     return create_asset_loader
