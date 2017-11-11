@@ -1,6 +1,6 @@
-from .configure import get_config
 from . import loaders
-from .loaders import load
+from .core import load
+from .configure import get_config
 
 
 # expose the default config as pygame_assets.config

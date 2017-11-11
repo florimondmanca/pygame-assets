@@ -1,50 +1,34 @@
-"""Generic asset management utilities for Pygame."""
+"""Built-in function-based loaders."""
 
 import pygame
-from .core import AssetLoader, AssetLoaderMeta
+from .core import register, loader
 
 
-load_functions = {}
+@loader()
+def image(filepath, *, alpha=None):
+    """Load an image.
 
+    If image has alpha, calls .convert_alpha() on it.
 
-def register(name, load_function):
-    """Allow to register custom load functions."""
-    load_functions[name] = load_function
-
-
-def for_asset(name):
-    """Create and register a loader class from a get_asset function."""
-    def create_loader(get_asset):
-        def get_asset_with_self(self, filepath, *args, **kwargs):
-            return get_asset(filepath, *args, **kwargs)
-        cls_name = name.capitalize() + 'Loader'
-        loader_cls = AssetLoaderMeta(cls_name, (AssetLoader,),
-                                     {'get_asset': get_asset_with_self})
-        register(name, loader_cls.as_function())
-        return loader_cls
-
-    return create_loader
-
-
-class LoaderIndex:
-    """When instanciated, allows to access function loaders by attribute."""
-
-    def __getattr__(self, name):
-        loader = load_functions.get(name)
-        if loader is not None:
-            return loader
+    Parameters
+    ----------
+    filepath : str
+    alpha : bool, optional
+    Can be used to force alpha conversion.
+    Default behavior is to detect alpha using .get_alpha().
+    """
+    img = pygame.image.load(filepath)
+    if alpha is None:
+        alpha = img.get_alpha() is not None
+        if alpha:
+            img = img.convert_alpha()
         else:
-            raise AttributeError('No such loader: {}'.format(name))
+            img = img.convert()
+    return img
 
 
-load = LoaderIndex()
-
-
-# predefined loaders
-
-
-@for_asset('sound')
-def load_sound(self, filepath, *, volume=1):
+@loader()
+def sound(filepath, *, volume=1):
     """Load a pygame.mixer.Sound.
 
     Parameters
@@ -59,31 +43,8 @@ def load_sound(self, filepath, *, volume=1):
     return sound
 
 
-@for_asset('image')
-def load_image(self, filepath, *, alpha=None):
-    """Load an image.
-
-    If image has alpha, calls .convert_alpha() on it.
-
-    Parameters
-    ----------
-    filepath : str
-    alpha : bool, optional
-        Can be used to force alpha conversion.
-        Default behavior is to detect alpha using .get_alpha().
-    """
-    image = pygame.image.load(filepath)
-    if alpha is None:
-        alpha = image.get_alpha() is not None
-    if alpha:
-        image = image.convert_alpha()
-    else:
-        image = image.convert()
-    return image
-
-
-@for_asset('music')
-def load_music(self, filepath, *, volume=1, **kwargs):
+@loader()
+def music(filepath, *, volume=1, **kwargs):
     """Load a music in the pygame mixer.
 
     Inits the pygame mixer if needed.
@@ -105,8 +66,8 @@ def load_music(self, filepath, *, volume=1, **kwargs):
     pygame.mixer.music.set_volume(volume)
 
 
-@for_asset('font')
-def load_font(self, filepath, *, size=20):
+@loader()
+def font(filepath, *, size=20):
     """Load a pygame.font.Font.
 
     Parameters
@@ -118,8 +79,8 @@ def load_font(self, filepath, *, size=20):
     return pygame.font.Font(filepath, size)
 
 
-@for_asset('freetype')
-def load_freetype(self, filepath, *, size=20):
+@loader()
+def freetype(filepath, *, size=20):
     """Load a pygame.freetype.Font.
 
     Inits pygame.freetype if needed.
@@ -135,9 +96,7 @@ def load_freetype(self, filepath, *, size=20):
     return pygame.freetype.Font(filepath, size)
 
 
-# register other predefined loaders
+# register other built-in loaders
 
-register(
-    'image_with_rect',
-    load_image.as_function(lambda img: (img, img.get_rect()))
-)
+register('image_with_rect', image,
+         returned=lambda img: (img, img.get_rect()))

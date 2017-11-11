@@ -28,38 +28,37 @@ class Config(metaclass=ConfigMeta):
     dirs = {}
 
     @classmethod
-    def add_default_dir(cls, loader_class):
-        """Add the default directory for a loader class to the config."""
-        asset_type = loader_class.asset_type
-        if asset_type not in cls.dirs:
-            cls.dirs[asset_type] = [asset_type]
+    def add_default_dir(cls, loader_name):
+        """Add the default directory for a given loader name to the config."""
+        cls.dirs.setdefault(loader_name, [loader_name])
 
     @classmethod
-    def search_dirs(cls, asset_type):
-        """Return directories where to search assets of this type.
+    def remove_dirs(cls, loader_name):
+        """Remove search directories for a loader."""
+        cls.dirs.pop(loader_name)
 
-        Returned as a generator.
+    @classmethod
+    def search_dirs(cls, loader_name):
+        """Return directories where a loader will search for assets.
 
         Parameters
         ----------
-        asset_type : str
+        loader_name : str
         """
-        dirs = cls.dirs.get(asset_type, [asset_type])
-        return (os.path.join(cls.base, dir_) for dir_ in dirs)
+        dirs = cls.dirs[loader_name]
+        return [os.path.join(cls.base, dir_) for dir_ in dirs]
 
     @classmethod
-    def search_paths(cls, asset_type, filename):
-        """Return file paths where to search this asset.
-
-        Returned as a generator.
+    def search_paths(cls, loader_name, filename):
+        """Return file paths where a loader will search an asset.
 
         Parameters
         ----------
-        asset_type : str
+        loader_name : str
         filename : str
         """
-        search_dirs = cls.search_dirs(asset_type)
-        return (os.path.join(dir_, filename) for dir_ in search_dirs)
+        search_dirs = cls.search_dirs(loader_name)
+        return [os.path.join(dir_, filename) for dir_ in search_dirs]
 
     def __str__(self):
         # TODO print the config's parameters

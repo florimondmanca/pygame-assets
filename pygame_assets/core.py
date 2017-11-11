@@ -1,111 +1,127 @@
-"""The core loader.
-
-Provides basic asset loading workflow, with error management and
-conversion to a plain function.
-"""
+"""The core of pygame-assets."""
 import pygame
-from .exceptions import AssetNotFoundError, InvalidAssetLoaderNameError
+from .exceptions import AssetNotFoundError
 from .configure import get_config
 
 
-class AssetLoaderMeta(type):
-    """Metaclass for AssetLoader.
+# mapping of names to the corresponding loader.
+loaders = {}
 
-    Defines a default asset_type class attribute at class initialization.
+
+def register(name, asset_loader, returned=None):
+    """Register a loader, making it available in pygame_assets.load.
+
+    Parameters
+    ----------
+    name : str
+        The loader's name.
+    asset_loader : function
+        An asset loader as returned by the pygame_assets.loader decorator.
+    returned : function, optional
+        Must take an asset as its only parameter and return the final
+        loaded asset.
     """
-
-    def __init__(cls, name, base, namespace):
-        super().__init__(name, base, namespace)
-
-        # assign the asset_type attribute to the cls
-        asset_type = namespace.get('asset_type')
-        if not asset_type:
-            asset_type = AssetLoaderMeta.get_asset_type(name)
-        cls.asset_type = asset_type
-
-        if cls.asset_type != 'asset':
-            # create the config default search dir for newly
-            # created loader class
-            get_config().add_default_dir(cls)
-
-    def get_asset_type(name):
-        if 'loader' not in name.lower():
-            raise InvalidAssetLoaderNameError(name)
-        return name.lower().replace('loader', '')
-
-
-class AssetLoader(metaclass=AssetLoaderMeta):
-    """Base asset loader.
-
-    Exposes a load(filename, *args, **kwargs) that shall be implemented in
-    inherited assets.
-
-    Class attributes
-    ----------------
-    asset_type : str
-        The type of asset this loader supports.
-        A default value based on the class's name is defined at definition.
-        Note: pygame-assets will look for assets of this type in the
-        asset_type subfolder of the configured base folder.
-    """
-
-    def load(self, filename, *args, **kwargs):
-        """Load an asset.
-
-        Parameters
-        ----------
-        filename : str
-            The asset's filename, e.g. 'my-image.png'.
-        """
-        search_paths = get_config().search_paths(self.asset_type, filename)
-        for filepath in search_paths:
-            try:
-                asset = self.get_asset(filepath, *args, **kwargs)
-                return asset
-            except (pygame.error, FileNotFoundError):
-                pass
-        raise AssetNotFoundError(filename)
-
-    def get_asset(self, file_path, *args, **kwargs):
-        """Get the asset given a full file path.
-
-        Abstract class method, shall be implemented in subclasses using
-        pygame's assets.
-
-        Parameters
-        ----------
-        file_path : str
-            Full path to the asset.
-        """
-        raise NotImplementedError
-
-    @classmethod
-    def as_function(cls, returned=lambda asset: asset):
-        """Build and return the function loader.
-
-        A function loader has the following signature :
-
-        loader(filename, *args, **kwargs) -> asset
-
-        The *args and **kwargs get transferred to the
-        class's get_asset(filepath, *args, **kwargs) function.
-
-        The class's get_asset() method documentation is copied to
-        the return function loader.
-
-        Parameters
-        ----------
-        returned : function, optional
-            The result of this function is returned by the
-            loader function.
-            It must take the loaded asset as its only parameter.
-            The default returns the asset itself.
-        """
-        def load_asset(filename, *args, **kwargs):
-            loader = cls(**kwargs)
-            asset = loader.load(filename, *args, **kwargs)
+    if returned is not None:
+        def loader_with_returned(filename, *args, **kwargs):
+            asset = asset_loader(filename, *args, **kwargs)
             return returned(asset)
+        loaders[name] = loader_with_returned
+    else:
+        loaders[name] = asset_loader
 
-        load_asset.__doc__ = cls.get_asset.__doc__
 
-        return load_asset
+def unregister(name, in_config=True):
+    """Unregister a loader.
+
+    Raises a KeyError if no loader called `name` exists.
+
+    Parameters
+    ----------
+    name : str
+        The name of the loader to unregister.
+    in_config : bool, optional
+        If True (the default), unregisters the loader from search
+        directories in the config (as obtained by get_config()).
+    """
+    del loaders[name]
+    if in_config:
+        get_config().remove_dirs(name)
+
+
+def loader(name=None):
+    """Decorator to register a loader.
+
+    The decorated function must take a filepath as its first argument.
+    It can then have any other positional or keyword arguments.
+
+    Unless explicitely passed, the loader's name will be the decorated
+    function's name.
+
+    Usage
+    -----
+    @loader()
+    def image(filepath):
+        # load an image and return it
+
+    @loader(name='customfont')
+    def font(filepath, size=20):
+        # load a font of given size and return it
+
+    Parameters
+    ----------
+    name : str
+        The name of the loader.
+    """
+    def create_asset_loader(get_asset):
+        loader_name = name or get_asset.__name__
+
+        # register default search directory for the loader
+        get_config().add_default_dir(loader_name)
+
+        # build the asset loader using load()
+        def asset_loader(filename, *args, **kwargs):
+            search_paths = get_config().search_paths(loader_name, filename)
+            asset = load_asset(get_asset, filename, search_paths,
+                               *args, **kwargs)
+            return asset
+
+        register(loader_name, asset_loader)
+        return asset_loader
+
+    return create_asset_loader
+
+
+def load_asset(get_asset, filename, search_paths, *args, **kwargs):
+    """Core function to load an asset.
+
+    This function tries to call get_asset on each of the search paths.
+    If no asset was found, raises an AssetNotFoundError.
+
+    Parameters
+    ----------
+    get_asset : function
+        The function being decorated by pygame_assets.load.
+    search_paths : list of str
+        List of paths where the loader will search for the asset.
+    filename : str
+        The asset's filename.
+    """
+    for filepath in search_paths:
+        try:
+            return get_asset(filepath, *args, **kwargs)
+        except (FileNotFoundError, pygame.error):
+            pass
+    raise AssetNotFoundError(filename)
+
+
+class LoaderIndex:
+    """Allow to access registered loaders by attribute."""
+
+    def __getattr__(self, name):
+        loader = loaders.get(name)
+        if loader is None:
+            raise AttributeError('No such loader: {}'.format(name))
+        return loader
+
+
+load = LoaderIndex()
