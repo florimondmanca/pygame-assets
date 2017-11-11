@@ -23,8 +23,10 @@ class AssetLoaderMeta(type):
             asset_type = AssetLoaderMeta.get_asset_type(name)
         cls.asset_type = asset_type
 
-        # create the config default search dir for newly created loader class
-        get_config().add_default_dir(cls)
+        if cls.asset_type != 'asset':
+            # create the config default search dir for newly
+            # created loader class
+            get_config().add_default_dir(cls)
 
     def get_asset_type(name):
         if 'loader' not in name.lower():
@@ -88,6 +90,9 @@ class AssetLoader(metaclass=AssetLoaderMeta):
         The *args and **kwargs get transferred to the
         class's get_asset(filepath, *args, **kwargs) function.
 
+        The class's get_asset() method documentation is copied to
+        the return function loader.
+
         Parameters
         ----------
         returned : function, optional
@@ -101,6 +106,6 @@ class AssetLoader(metaclass=AssetLoaderMeta):
             asset = loader.load(filename, *args, **kwargs)
             return returned(asset)
 
-        load_asset.__doc__ = "Load a {}.".format(cls.asset_type)
+        load_asset.__doc__ = cls.get_asset.__doc__
 
         return load_asset

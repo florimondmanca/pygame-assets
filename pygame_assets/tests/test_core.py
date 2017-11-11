@@ -123,12 +123,12 @@ class TestAssetLoader(unittest.TestCase):
         self.assertEqual('Loading image using hammer, saw, scissors',
                          result)
 
-    def test_loader_as_function_docs_contains_asset_type(self):
+    def test_loader_as_function_docs_is_get_asset_docs(self):
         class DummyLoader(AssetLoader):
             pass
 
         dummy = DummyLoader.as_function()
-        self.assertIn(DummyLoader.asset_type, dummy.__doc__)
+        self.assertEqual(dummy.__doc__, DummyLoader.get_asset.__doc__)
 
 
 if __name__ == '__main__':
