@@ -17,7 +17,7 @@ PACKAGE_NAME = 'pygame_assets'
 PACKAGES = [PACKAGE_NAME]
 DESCRIPTION = 'Assets manager for Pygame apps'
 KEYWORDS = ['pygame', 'assets', 'manager', 'utility']
-VERSION = '0.1'
+VERSION = 'v0.1'
 
 AUTHOR = 'Florimond Manca'
 EMAIL = 'florimond.manca@gmail.com'
