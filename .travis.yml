@@ -10,9 +10,9 @@ before_install:
     - sudo apt-get build-dep -qq python-pygame
     - sudo apt-get install -qq python-pygame
 
-install: pip install -r .travis-requirements.txt
-
-script: python3 -m unittest
+script:
+    - echo $PYTHONPATH
+    - python3 -m unittest
 
 virtualenv:
     system_site_packages: true
