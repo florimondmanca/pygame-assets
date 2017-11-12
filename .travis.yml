@@ -1,5 +1,3 @@
-
-
 language: python
 
 python:
@@ -12,7 +10,7 @@ before_install:
     - sudo apt-get build-dep -qq python-pygame
     - sudo apt-get install -qq python-pygame
 
-install: pip install -r requirements.txt
+install: pip install -r .travis-requirements.txt
 
 script: python3 -m unittest
 
