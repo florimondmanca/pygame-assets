@@ -13,8 +13,14 @@ before_install:
     - sudo apt-get build-dep -qq python-pygame
     - sudo apt-get install -qq python-pygame
 
+before_script:
+    - cd pygame_assets
+
 script:
     - python3 -m unittest
+
+after_script:
+    - cd ..
 
 virtualenv:
     system_site_packages: true
