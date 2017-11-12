@@ -1,3 +1,5 @@
+[![](https://travis-ci.org/florimondmanca/pygame-assets.svg?branch=master)](https://travis-ci.org/florimondmanca/pygame-assets)
+
 # Pygame Assets
 
 PygameAssets is a lightweight asset manager for Pygame applications and games, designed to be pluggable, extensible and configurable.
