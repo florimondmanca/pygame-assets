@@ -2,8 +2,11 @@ language: python
 
 python:
     - "3.4"
-    - "3.5"
-    - "3.6"
+
+env:
+  global:
+    - PYTHONPATH="/home/travis/build/florimondmanca/pygame-assets"
+    - PIP_USE_MIRRORS=true
 
 before_install:
     - sudo apt-get update -qq
@@ -11,7 +14,6 @@ before_install:
     - sudo apt-get install -qq python-pygame
 
 script:
-    - echo $PYTHONPATH
     - python3 -m unittest
 
 virtualenv:
