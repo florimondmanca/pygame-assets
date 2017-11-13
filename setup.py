@@ -23,7 +23,7 @@ def read(fname):
         return f.read()
 
 
-NAME = 'pygame_assets'
+NAME = 'pygame-assets'
 VERSION = '0.1'
 DESCRIPTION = 'Assets manager for Pygame apps'
 LONG_DESCRIPTION = read('README.md')
