@@ -6,21 +6,21 @@ PygameAssets is a lightweight asset manager for Pygame applications and games, d
 
 ## Installation
 
-[In progress] Pygame Assets will soon be available on PyPI, so you will be able to use `pip` to install it:
+PygameAssets is released on PyPI so you can use `pip` to install it:
 
-```bash
+```
 $ pip install pygame-assets
 ```
 
 ## Documentation
 
-The full documentation is hosted on [ReadTheDocs](#).
+[WIP] The full documentation is hosted on [ReadTheDocs](#). [/WIP]
 
 ## Getting started
 
 PygameAssets expects your assets to be in a folder called `assets`, which should be located at the root of your game project directory. Let's create this folder:
 
-```sh
+```
 my_project $ mkdir assets/
 ```
 
@@ -108,3 +108,7 @@ assets.config.dirs['spritesheet'].append('sheets')
 # You can redefine the path to that module too.
 assets.config.custom_loaders_location = 'src.path.to.my.loaders.module'
 ```
+
+## Changelog
+
+- 0.1 (2017.11.13) : Initial release
