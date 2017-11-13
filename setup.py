@@ -11,23 +11,35 @@ python setup.py register -r pypi
 python setup.py sdist upload -r pypi
 """
 
-from distutils.core import setup
+from os import path
+from setuptools import setup, find_packages
 
-PACKAGE_NAME = 'pygame_assets'
-PACKAGES = [PACKAGE_NAME]
+here = path.abspath(path.dirname(__file__))
+
+
+def read(fname):
+    """Return content of a file."""
+    with open(path.join(here, fname)) as f:
+        return f.read()
+
+
+NAME = 'pygame_assets'
+VERSION = '0.1'
 DESCRIPTION = 'Assets manager for Pygame apps'
-KEYWORDS = ['pygame', 'assets', 'manager', 'utility']
-VERSION = 'v0.1'
+LONG_DESCRIPTION = read('README.md')
+
+URL = 'https://github.com/florimondmanca/pygame-assets'
+DOWNLOAD_URL = URL + '/archive/{tag}.tar.gz'.format(tag=VERSION)
 
 AUTHOR = 'Florimond Manca'
-EMAIL = 'florimond.manca@gmail.com'
+AUTHOR_EMAIL = 'florimond.manca@gmail.com'
 
-GITHUB_URL = 'https://github.com/florimondmanca/pygame-assets'
-DOWNLOAD_URL = GITHUB_URL + '/archive/{tag}.tar.gz'.format(tag=VERSION)
-
+KEYWORDS = 'pygame asset management game utility'
 CLASSIFIERS = [
+    'Development Status :: 3 - Alpha',
     'Topic :: Software Development :: Libraries :: pygame',
     'Intended Audience :: Developers',
+    'Programming Language :: Python :: 3',
     'Programming Language :: Python :: 3.4',
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
@@ -35,14 +47,15 @@ CLASSIFIERS = [
 ]
 
 setup(
-    name=PACKAGE_NAME,
-    packages=PACKAGES,
+    name=NAME,
     version=VERSION,
     description=DESCRIPTION,
-    author=AUTHOR,
-    author_email=EMAIL,
-    url=GITHUB_URL,
+    long_description=LONG_DESCRIPTION,
+    url=URL,
     download_url=DOWNLOAD_URL,
+    author=AUTHOR,
+    author_email=AUTHOR_EMAIL,
     keywords=KEYWORDS,
     classifiers=CLASSIFIERS,
+    packages=find_packages('pygame_assets'),
 )

@@ -6,7 +6,7 @@ PygameAssets is a lightweight asset manager for Pygame applications and games, d
 
 ## Installation
 
-Pygame Assets is available on PyPI, so use `pip` to install it:
+[In progress] Pygame Assets will soon be available on PyPI, so you will be able to use `pip` to install it:
 
 ```bash
 $ pip install pygame-assets
