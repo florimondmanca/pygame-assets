@@ -57,5 +57,6 @@ setup(
     author_email=AUTHOR_EMAIL,
     keywords=KEYWORDS,
     classifiers=CLASSIFIERS,
-    packages=find_packages('pygame_assets'),
+    packages=find_packages(exclude=('example_project',)),
+    python_requires='>=3.4',
 )
