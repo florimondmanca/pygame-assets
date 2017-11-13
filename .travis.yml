@@ -24,13 +24,3 @@ after_script:
 
 virtualenv:
     system_site_packages: true
-
-# http://5minutes.youkidea.com/howto-deploy-python-package-on-pypi-with-github-and-travis.html
-# deploy:
-#     provider: pypi
-#     user: florimondmanca
-#     password:
-#         secure: 211242Coaster96
-#     on:
-#         tags: true
-#         branch: master
