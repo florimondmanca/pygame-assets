@@ -12,8 +12,8 @@ env:
   global:
     - PYTHONPATH="/home/travis/build/florimondmanca/pygame-assets"
     - PIP_USE_MIRRORS=true
-  - AUDIODEV=null
-  - SDL_AUDIODRIVER=x11  # xvfb implements the x11 protocol
+    - AUDIODEV=null
+    - SDL_AUDIODRIVER=x11  # xvfb implements the x11 protocol
 
 before_install:
     - sudo apt-get update -qq
