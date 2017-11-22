@@ -3,7 +3,6 @@
 import unittest
 import pygame
 
-
 from pygame_assets.loaders import image as load_image
 from pygame_assets.loaders import sound as load_sound
 from pygame_assets.loaders import music as load_music
