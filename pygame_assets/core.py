@@ -20,14 +20,21 @@ def register(name, asset_loader, returned=None):
     returned : function, optional
         Must take an asset as its only parameter and return the final
         loaded asset.
+
+    Returns
+    -------
+    loader : function
+        The registered loader.
     """
     if returned is not None:
         def loader_with_returned(filename, *args, **kwargs):
             asset = asset_loader(filename, *args, **kwargs)
             return returned(asset)
-        loaders[name] = loader_with_returned
+        loader = loader_with_returned
     else:
-        loaders[name] = asset_loader
+        loader = asset_loader
+    loaders[name] = loader
+    return loader
 
 
 def unregister(name, in_config=True):

@@ -139,5 +139,5 @@ def freetype(filepath, *, size=None):
 
 # register other built-in loaders
 
-register('image_with_rect', image,
-         returned=lambda img: (img, img.get_rect()))
+image_with_rect = register('image_with_rect', image,
+                           returned=lambda img: (img, img.get_rect()))

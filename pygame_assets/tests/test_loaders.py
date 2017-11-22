@@ -3,7 +3,9 @@
 import unittest
 import pygame
 
+
 from pygame_assets.loaders import image as load_image
+from pygame_assets.loaders import image_with_rect as load_image_with_rect
 from pygame_assets.loaders import sound as load_sound
 from pygame_assets.loaders import music as load_music
 from pygame_assets.loaders import font as load_font
@@ -11,9 +13,6 @@ from pygame_assets.loaders import freetype as load_freetype
 from pygame_assets.configure import get_config
 
 from .utils import TestCase, change_config
-
-# TODO test predefined loaders
-# TODO test the custom_loaders API
 
 
 class LoaderTestCase(TestCase):
@@ -69,6 +68,25 @@ class TestImageLoader(LoaderTestCase):
     def test_alpha_is_kwarg_only(self):
         with self.assertRaises(TypeError):
             self.asset(True)
+
+
+class TestImageWithRectLoader(LoaderTestCase):
+    """Unit tests for the image_with_rect loader."""
+
+    loader = load_image_with_rect
+    filename = 'test-image.png'
+
+    @classmethod
+    def setUpClass(cls):
+        pygame.init()
+        # pygame requires to set_mode before loading images
+        # the same constraint applies to pygame_assets
+        cls.screen = pygame.display.set_mode((800, 600))
+
+    def test_load_image_with_rect(self):
+        image, rect = self.asset()
+        self.assertIsInstance(image, pygame.Surface)
+        self.assertIsInstance(rect, pygame.Rect)
 
 
 class TestSoundLoader(LoaderTestCase):
