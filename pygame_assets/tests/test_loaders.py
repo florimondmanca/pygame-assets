@@ -5,6 +5,8 @@ import pygame
 
 from pygame_assets.loaders import image as load_image
 from pygame_assets.loaders import sound as load_sound
+from pygame_assets.loaders import music as load_music
+from pygame_assets import config
 
 # from pygame_assets import core, load
 # from pygame_assets.core import register
@@ -58,6 +60,28 @@ class TestSoundLoader(unittest.TestCase):
     def test_volume_is_kwarg_only(self):
         with self.assertRaises(TypeError):
             load_sound('test-sound.wav', 0.5)
+
+
+class TestMusicLoader(unittest.TestCase):
+    """Unit tests for the music loader."""
+
+    def test_dir_is_sound(self):
+        self.assertListEqual(config.dirs['music'], ['sound'])
+
+    def test_load_music_from_path(self):
+        self.assertFalse(pygame.mixer.music.get_busy())
+        returned_value = load_music('test-sound.wav')
+        self.assertIsNone(returned_value)
+        # music did not start playing
+        self.assertFalse(pygame.mixer.music.get_busy())
+
+    def test_set_volume_when_loading(self):
+        load_music('test-sound.wav', volume=0.5)
+        self.assertEqual(pygame.mixer.music.get_volume(), 0.5)
+
+    def test_volume_is_kwarg_only(self):
+        with self.assertRaises(TypeError):
+            load_music('test-sound.wav', 0.5)
 
 
 if __name__ == '__main__':

@@ -65,8 +65,8 @@ def sound(filepath, *, volume=1):
 def music(filepath, *, volume=1, **kwargs):
     """Load a music in the pygame mixer.
 
-    Inits the pygame mixer if needed.
-    Calling pygame.mixer.play() to play the music is left to the caller.
+    The playback will not start. Call pygame.mixer.play() to start the playback
+    when desired.
 
     Searches in
     -----------
@@ -78,16 +78,11 @@ def music(filepath, *, volume=1, **kwargs):
     volume : float, optional
         The volume of the music, between 0 and 1.
         Default is 1.
-    **kwargs : dict
-        Any parameters to pass to pygame.mixer.pre_init().
 
     Returns
     -------
     None
     """
-    if not pygame.mixer.get_init() or kwargs:
-        pygame.mixer.pre_init(**kwargs)
-        pygame.mixer.init()
     pygame.mixer.music.load(filepath)
     pygame.mixer.music.set_volume(volume)
 
