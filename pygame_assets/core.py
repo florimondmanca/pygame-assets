@@ -48,7 +48,7 @@ def unregister(name, in_config=True):
         get_config().remove_search_dirs(name)
 
 
-def loader(name=None, dirs=None):
+def loader(*, name=None, dirs=None):
     """Decorator to register a loader.
 
     The decorated function must take a filepath as its first argument.
@@ -56,6 +56,9 @@ def loader(name=None, dirs=None):
 
     Unless explicitely passed, the loader's name will be the decorated
     function's name.
+
+    You can specify the loader's search directories using the dirs
+    argument.
 
     Usage
     -----
@@ -67,11 +70,15 @@ def loader(name=None, dirs=None):
     def font(filepath, size=20):
         # load a font of given size and return it
 
+    @loader(dirs=['image'])
+    def special_image(filepath):
+        # special_image will search into the `image` folder.
+
     Parameters
     ----------
-    name : str
+    name : str, optional, kwarg only.
         The name of the loader.
-    dirs : str
+    dirs : str, kwarg only.
         List of directories this loader will look into.
         By default, it only looks in the directory named after itself.
         Note that if the dirs paramereter is passed, you should include

@@ -9,8 +9,13 @@ from pygame_assets.exceptions import AssetNotFoundError
 from pygame_assets.configure import get_config, set_environ_config, Config
 
 
+# Utilities
+
 class TestConfig(Config):
-    """Configuration for tests. Redefines the base assets directory."""
+    """Configuration for tests.
+
+    Redefines the base assets directory.
+    """
 
     name = 'test'
     base = 'tests/assets'
@@ -33,11 +38,13 @@ def define_test_loader(name):
     core.unregister(name)
 
 
+# Tests
+
 class TestImports(unittest.TestCase):
     """Import-related tests."""
 
     def test_can_import_package(self):
-        import pygame_assets
+        import pygame_assets  # noqa: F401
 
     def test_package_has_version_string(self):
         import pygame_assets
@@ -79,7 +86,7 @@ class TestAssetLoader(unittest.TestCase):
     def setUp(self):
         set_environ_config('test')
 
-    def test_new_loader_adds_search_dir_list_to_config(self):
+    def test_new_loader_adds_default_search_dir_to_config(self):
         config = get_config()
         self.assertNotIn('special', config.dirs)
 
@@ -91,6 +98,41 @@ class TestAssetLoader(unittest.TestCase):
         self.assertListEqual(config.dirs['special'], ['special'])
 
         core.unregister('special')
+
+    def test_define_custom_name(self):
+        config = get_config()
+        self.assertNotIn('fantastic', config.dirs)
+
+        @core.loader(name='fantastic')
+        def special(filepath):
+            pass
+
+        self.assertIn('fantastic', config.dirs)
+        # the load object has registered the loader using the custom name
+        self.assertIsNotNone(load.fantastic)
+        with self.assertRaises(AttributeError):
+            # the function name was not used
+            load.special
+
+        core.unregister('fantastic')
+
+    def test_custom_name_is_kwarg_only(self):
+        with self.assertRaises(TypeError):
+            @core.loader('should have been: name=...')
+            def foo(filepath):
+                pass
+
+    def test_define_custom_search_dirs(self):
+        config = get_config()
+        self.assertNotIn('text', config.dirs)
+
+        @core.loader(dirs=['levels', 'scenarios'])
+        def text(filepath):
+            pass
+
+        self.assertListEqual(config.dirs['text'], ['levels', 'scenarios'])
+
+        core.unregister('text')
 
     def test_load_asset(self):
         loader_name = 'text'
