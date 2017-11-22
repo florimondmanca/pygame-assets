@@ -20,10 +20,6 @@ before_install:
     - sudo apt-get build-dep -qq python-pygame
     - sudo apt-get install -qq python-pygame
 
-install:
-  # set the headless driver
-  - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-
 before_script:
     - cd pygame_assets
 
