@@ -33,6 +33,17 @@ def define_test_loader(name):
     core.unregister(name)
 
 
+class TestImports(unittest.TestCase):
+    """Import-related tests."""
+
+    def test_can_import_package(self):
+        import pygame_assets
+
+    def test_package_has_version_string(self):
+        import pygame_assets
+        self.assertIsNotNone(pygame_assets.__version__)
+
+
 class TestLoadAPI(unittest.TestCase):
     """Unit tests for the pygame_assets.load API."""
 

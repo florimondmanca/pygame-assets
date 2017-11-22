@@ -2,6 +2,8 @@ from . import loaders
 from .core import load
 from .configure import get_config
 
+__version__ = '0.1.0'
+
 
 # expose the default config as pygame_assets.config
 config = get_config()
