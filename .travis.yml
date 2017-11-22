@@ -15,6 +15,7 @@ before_install:
 
 before_script:
     - cd pygame_assets
+    - python -c "import os; os.environ['SDL_VIDEODRIVER'] = 'dummy'"
 
 script:
     - python3 -m unittest

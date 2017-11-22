@@ -77,6 +77,10 @@ class TestSoundLoader(LoaderTestCase):
     loader = load_sound
     filename = 'test-sound.wav'
 
+    @classmethod
+    def setUpClass(cls):
+        pygame.mixer.init()
+
     def test_load_sound_from_path(self):
         self.assertIsInstance(self.asset(), pygame.mixer.Sound)
 
@@ -94,6 +98,10 @@ class TestMusicLoader(LoaderTestCase):
 
     loader = load_music
     filename = 'test-sound.wav'
+
+    @classmethod
+    def setUpClass(cls):
+        pygame.mixer.init()
 
     def test_dir_is_sound(self):
         self.assertListEqual(get_config().dirs['music'], ['sound'])
