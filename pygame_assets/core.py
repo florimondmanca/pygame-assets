@@ -80,8 +80,9 @@ def loader(name=None, dirs=None):
     def create_asset_loader(get_asset):
         loader_name = name or get_asset.__name__
 
-        # register default search directory for the loader
-        get_config().add_search_dirs(loader_name, *(dirs or [loader_name]))
+        search_dirs = dirs or [loader_name]
+        # register search directories for the loader
+        get_config().add_search_dirs(loader_name, *search_dirs)
 
         # build the asset loader using load()
         def asset_loader(filename, *args, **kwargs):
