@@ -3,19 +3,29 @@ language: python
 python:
     - "3.4"
 
+addons:
+  apt:
+    packages:
+      - xvfb
+
 env:
   global:
     - PYTHONPATH="/home/travis/build/florimondmanca/pygame-assets"
     - PIP_USE_MIRRORS=true
+  AUDIODEV=null
+  SDL_AUDIODRIVER=x11  # xvfb implements the x11 protocol
 
 before_install:
     - sudo apt-get update -qq
     - sudo apt-get build-dep -qq python-pygame
     - sudo apt-get install -qq python-pygame
 
+install:
+  # set the headless driver
+  - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+
 before_script:
     - cd pygame_assets
-    - python -c "import os; os.environ['SDL_VIDEODRIVER'] = 'dummy'"
 
 script:
     - python3 -m unittest
