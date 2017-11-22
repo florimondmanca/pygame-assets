@@ -45,7 +45,6 @@ class TestConfigure(unittest.TestCase):
         for loader_name, dirs in config.dirs.items():
             self.assertIsInstance(loader_name, str)
             self.assertIsInstance(dirs, list)
-            self.assertIn(loader_name, dirs)
 
     def test_set_config_base(self):
         config = get_config()

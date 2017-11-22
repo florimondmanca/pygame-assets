@@ -60,12 +60,16 @@ def sound(filepath, *, volume=1):
     return sound
 
 
-@loader()
+@loader(dirs=['sound'])
 def music(filepath, *, volume=1, **kwargs):
     """Load a music in the pygame mixer.
 
     Inits the pygame mixer if needed.
     Calling pygame.mixer.play() to play the music is left to the caller.
+
+    Searches in
+    -----------
+    sound
 
     Parameters
     ----------
@@ -80,15 +84,18 @@ def music(filepath, *, volume=1, **kwargs):
     -------
     None
     """
-    if not pygame.mixer.get_init():
+    if not pygame.mixer.get_init() or kwargs:
         pygame.mixer.pre_init(**kwargs)
         pygame.mixer.init()
     pygame.mixer.music.load(filepath)
     pygame.mixer.music.set_volume(volume)
 
 
+DEFAULT_FONT_SIZE = 20
+
+
 @loader()
-def font(filepath, *, size=20):
+def font(filepath, *, size=None):
     """Load a font.
 
     Parameters
@@ -96,30 +103,40 @@ def font(filepath, *, size=20):
     filepath : str
     size : int, optional
         The size of the font, in pixels.
+        Default is DEFAULT_FONT_SIZE.
 
     Returns
     -------
     pygame.font.Font
     """
+    if size is None:
+        size = DEFAULT_FONT_SIZE
     return pygame.font.Font(filepath, size)
 
 
-@loader()
-def freetype(filepath, *, size=20):
+@loader(dirs=['font'])
+def freetype(filepath, *, size=None):
     """Load a font using pygame.freetype.
 
     Inits pygame.freetype if needed.
+
+    Searches in
+    -----------
+    font
 
     Parameters
     ----------
     filepath : str
     size : int, optional
         The size of the font, in pixels.
+        Default is DEFAULT_FONT_SIZE.
 
     Returns
     -------
     pygame.freetype.Font
     """
+    if size is None:
+        size = DEFAULT_FONT_SIZE
     if not pygame.freetype.was_init():
         pygame.freetype.init()
     return pygame.freetype.Font(filepath, size)
