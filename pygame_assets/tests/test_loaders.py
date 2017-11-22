@@ -4,6 +4,7 @@ import unittest
 import pygame
 
 from pygame_assets.loaders import image as load_image
+from pygame_assets.loaders import sound as load_sound
 
 # from pygame_assets import core, load
 # from pygame_assets.core import register
@@ -33,6 +34,30 @@ class TestImageLoader(unittest.TestCase):
     def test_image_without_alpha_has_no_alpha(self):
         image = load_image('test-image-without-alpha.jpg')
         self.assertIsNone(image.get_alpha())
+
+    def test_force_convert_alpha(self):
+        load_image('test-image-without-alpha.jpg', convert_alpha=True)
+        load_image('test-image-with-alpha.png', convert_alpha=False)
+
+    def test_alpha_is_kwarg_only(self):
+        with self.assertRaises(TypeError):
+            load_sound('test-sound.wav', True)
+
+
+class TestSoundLoader(unittest.TestCase):
+    """Unit tests for the sound loader."""
+
+    def test_load_sound_from_path(self):
+        sound = load_sound('test-sound.wav')
+        self.assertIsInstance(sound, pygame.mixer.Sound)
+
+    def test_set_volume_when_loading(self):
+        sound = load_sound('test-sound.wav', volume=0.5)
+        self.assertEqual(sound.get_volume(), 0.5)
+
+    def test_volume_is_kwarg_only(self):
+        with self.assertRaises(TypeError):
+            load_sound('test-sound.wav', 0.5)
 
 
 if __name__ == '__main__':

@@ -5,7 +5,7 @@ from .core import register, loader
 
 
 @loader()
-def image(filepath, *, alpha=None):
+def image(filepath, *, convert_alpha=None):
     """Load an image.
 
     Calls .convert() on the surface before returning it.
@@ -18,7 +18,7 @@ def image(filepath, *, alpha=None):
     Parameters
     ----------
     filepath : str
-    alpha : bool, optional
+    convert_alpha : bool, optional
         Can be used to force alpha conversion.
         Default behavior is to detect alpha using .get_alpha().
 
@@ -35,7 +35,8 @@ def image(filepath, *, alpha=None):
             img = img.convert()
         return img
 
-    img = convert(img, img.get_alpha() if alpha is None else alpha)
+    img = convert(
+        img, img.get_alpha() if convert_alpha is None else convert_alpha)
 
     return img
 
