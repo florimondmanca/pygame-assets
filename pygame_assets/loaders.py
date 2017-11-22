@@ -2,6 +2,7 @@
 
 import pygame
 from .core import register, loader
+from .configure import get_config
 
 
 @loader()
@@ -87,9 +88,6 @@ def music(filepath, *, volume=1, **kwargs):
     pygame.mixer.music.set_volume(volume)
 
 
-DEFAULT_FONT_SIZE = 20
-
-
 @loader()
 def font(filepath, *, size=None):
     """Load a font.
@@ -99,14 +97,14 @@ def font(filepath, *, size=None):
     filepath : str
     size : int, optional
         The size of the font, in pixels.
-        Default is DEFAULT_FONT_SIZE.
+        Default is the config's default_font_size.
 
     Returns
     -------
     pygame.font.Font
     """
     if size is None:
-        size = DEFAULT_FONT_SIZE
+        size = get_config().default_font_size
     return pygame.font.Font(filepath, size)
 
 
@@ -125,14 +123,14 @@ def freetype(filepath, *, size=None):
     filepath : str
     size : int, optional
         The size of the font, in pixels.
-        Default is DEFAULT_FONT_SIZE.
+        Default is the config's default_font_size.
 
     Returns
     -------
     pygame.freetype.Font
     """
     if size is None:
-        size = DEFAULT_FONT_SIZE
+        size = get_config().default_font_size
     if not pygame.freetype.was_init():
         pygame.freetype.init()
     return pygame.freetype.Font(filepath, size)

@@ -2,43 +2,13 @@
 
 import os
 import unittest
-from contextlib import contextmanager
 
 from pygame_assets import core, load
 from pygame_assets.exceptions import AssetNotFoundError
-from pygame_assets.configure import get_config, set_environ_config, Config
+from pygame_assets.configure import get_config
 
+from .utils import TestCase, define_test_loader
 
-# Utilities
-
-class TestConfig(Config):
-    """Configuration for tests.
-
-    Redefines the base assets directory.
-    """
-
-    name = 'test'
-    base = 'tests/assets'
-
-
-@contextmanager
-def define_test_loader(name):
-    """Utility context manager.
-
-    1. Creates a text loader which gets registered to pygame_assets,
-    2. Yields the loader,
-    3. Cleans up by unregistering the loader from pygame_assets.
-    """
-    @core.loader(name=name)
-    def load_text(filepath):
-        with open(filepath, 'r') as textfile:
-            text = textfile.read()
-        return text
-    yield load_text
-    core.unregister(name)
-
-
-# Tests
 
 class TestImports(unittest.TestCase):
     """Import-related tests."""
@@ -51,7 +21,7 @@ class TestImports(unittest.TestCase):
         self.assertIsNotNone(pygame_assets.__version__)
 
 
-class TestLoadAPI(unittest.TestCase):
+class TestLoadAPI(TestCase):
     """Unit tests for the pygame_assets.load API."""
 
     def test_access_predefined_loaders(self):
@@ -80,11 +50,8 @@ class TestLoadAPI(unittest.TestCase):
             getattr(core.load, 'undefined!')
 
 
-class TestAssetLoader(unittest.TestCase):
+class TestAssetLoader(TestCase):
     """Unit tests for the the core loader functions."""
-
-    def setUp(self):
-        set_environ_config('test')
 
     def test_new_loader_adds_default_search_dir_to_config(self):
         config = get_config()
@@ -193,7 +160,7 @@ class TestRegisterApi(unittest.TestCase):
         core.unregister('text', in_config=False)
         self.assertNotIn('text', core.loaders)
 
-    def test_unregister_loader_removes_loader_name_from_config(self):
+    def test_unregister_loader_removes_loader_from_config_search_dirs(self):
         @core.loader(name='text')
         def load_text(filepath):
             with open(filepath, 'r') as textfile:

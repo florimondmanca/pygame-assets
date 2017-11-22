@@ -27,6 +27,7 @@ class Config(metaclass=ConfigMeta):
 
     name = 'default'
     base = './assets'
+    default_font_size = 20
     custom_loaders_location = 'asset_loaders'
     dirs = {}
 

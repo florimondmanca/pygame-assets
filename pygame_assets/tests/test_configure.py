@@ -80,3 +80,7 @@ class TestConfigure(unittest.TestCase):
         expected = ['assets/spritesheet', 'assets/sheets']
         actual = config.search_dirs('spritesheet')
         self.assertListEqual(expected, actual)
+
+    def test_defines_default_font_size(self):
+        config = get_config()
+        self.assertIsNotNone(config.default_font_size)
