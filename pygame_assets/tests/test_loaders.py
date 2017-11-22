@@ -7,6 +7,7 @@ from pygame_assets.loaders import image as load_image
 from pygame_assets.loaders import sound as load_sound
 from pygame_assets.loaders import music as load_music
 from pygame_assets.loaders import font as load_font
+from pygame_assets.loaders import freetype as load_freetype
 from pygame_assets.configure import get_config
 
 from .utils import TestCase, change_config
@@ -138,6 +139,35 @@ class TestFontLoader(LoaderTestCase):
             config.default_font_size = 60
             self.assertAlmostEqual(self.asset().get_height(), 60, delta=15)
         print(get_config().default_font_size)
+
+
+class TestFreetypeFontLoader(LoaderTestCase):
+    """Unit tests for the freetype font loader."""
+
+    filename = 'bebas-neue.otf'
+    loader = load_freetype
+
+    @classmethod
+    def setUpClass(cls):
+        pygame.font.init()
+
+    def test_dir_is_font(self):
+        self.assertListEqual(get_config().dirs['freetype'], ['font'])
+
+    def test_load_font_from_path(self):
+        self.assertIsInstance(self.asset(), pygame.freetype.Font)
+
+    def test_load_with_size(self):
+        self.assertEqual(self.asset(size=40).size, 40)
+
+    def test_default_size_is_20(self):
+        self.assertEqual(get_config().default_font_size, 20)
+        self.assertEqual(self.asset().size, 20)
+
+    def test_default_change_default_size(self):
+        with change_config('default_font_size') as config:
+            config.default_font_size = 60
+            self.assertEqual(self.asset().size, 60)
 
 
 if __name__ == '__main__':

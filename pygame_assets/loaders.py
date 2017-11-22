@@ -1,6 +1,7 @@
 """Built-in function-based loaders."""
 
 import pygame
+import pygame.freetype
 from .core import register, loader
 from .configure import get_config
 
