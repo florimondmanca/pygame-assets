@@ -45,10 +45,10 @@ def unregister(name, in_config=True):
     """
     del loaders[name]
     if in_config:
-        get_config().remove_dirs(name)
+        get_config().remove_search_dirs(name)
 
 
-def loader(name=None):
+def loader(name=None, dirs=None):
     """Decorator to register a loader.
 
     The decorated function must take a filepath as its first argument.
@@ -71,12 +71,17 @@ def loader(name=None):
     ----------
     name : str
         The name of the loader.
+    dirs : str
+        List of directories this loader will look into.
+        By default, it only looks in the directory named after itself.
+        Note that if the dirs paramereter is passed, you should include
+        the loader's name in it if needed.
     """
     def create_asset_loader(get_asset):
         loader_name = name or get_asset.__name__
 
         # register default search directory for the loader
-        get_config().add_default_dir(loader_name)
+        get_config().add_search_dirs(loader_name, *(dirs or [loader_name]))
 
         # build the asset loader using load()
         def asset_loader(filename, *args, **kwargs):

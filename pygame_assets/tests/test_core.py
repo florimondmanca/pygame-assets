@@ -79,7 +79,7 @@ class TestAssetLoader(unittest.TestCase):
     def setUp(self):
         set_environ_config('test')
 
-    def test_new_loader_adds_default_dir_list_to_config(self):
+    def test_new_loader_adds_search_dir_list_to_config(self):
         config = get_config()
         self.assertNotIn('special', config.dirs)
 
@@ -94,7 +94,7 @@ class TestAssetLoader(unittest.TestCase):
 
     def test_load_asset(self):
         loader_name = 'text'
-        get_config().add_default_dir(loader_name)
+        get_config().add_search_dirs(loader_name, loader_name)
 
         filename = 'test.txt'
         content = 'TEST!'
@@ -119,7 +119,7 @@ class TestAssetLoader(unittest.TestCase):
 
         # cleanup
         os.remove(text_path)
-        get_config().remove_dirs(loader_name)
+        get_config().remove_search_dirs(loader_name)
 
 
 class TestRegisterApi(unittest.TestCase):

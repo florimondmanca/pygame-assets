@@ -55,6 +55,11 @@ class TestConfigure(unittest.TestCase):
         # cleanup
         config.base = 'assets'
 
+    def test_new_config_must_have_name(self):
+        with self.assertRaises(ValueError):
+            class ConfigWithoutName(Config):
+                name = ''
+
     def test_new_config_is_registered_to_get_config(self):
         # assert custom config does not exist already
         with self.assertRaises(KeyError):

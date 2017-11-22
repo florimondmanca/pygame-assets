@@ -7,15 +7,18 @@ CONFIGS = {}
 
 
 class ConfigMeta(type):
-    """Config metaclass.
+    """Metaclass for Config objects.
 
-    Simply registers configuration classes to the configs dictionary.
+    Simply registers configuration classes to the configure.CONFIGS dict.
     """
 
     def __init__(cls, name, base, namespace):
         super().__init__(name, base, namespace)
 
         config_name = namespace.get('name')
+        if not config_name:
+            raise ValueError('Config classes must have '
+                             'a well-defined name attribute, none was found.')
         CONFIGS[config_name] = cls
 
 
@@ -28,13 +31,27 @@ class Config(metaclass=ConfigMeta):
     dirs = {}
 
     @classmethod
-    def add_default_dir(cls, loader_name):
-        """Add the default directory for a given loader name to the config."""
-        cls.dirs.setdefault(loader_name, [loader_name])
+    def add_search_dirs(cls, loader_name, *search_dirs):
+        """Register search directories for a loader.
+
+        Parameters
+        ----------
+        loader_name : str
+        *search_dirs : list of str, optional
+            The list of directories this loader will search into.
+        """
+        cls.dirs.setdefault(loader_name, [])
+        for default_dir in search_dirs:
+            cls.dirs[loader_name].append(default_dir)
 
     @classmethod
-    def remove_dirs(cls, loader_name):
-        """Remove search directories for a loader."""
+    def remove_search_dirs(cls, loader_name):
+        """Remove search directories for a loader.
+
+        Parameters
+        ----------
+        loader_name : str
+        """
         cls.dirs.pop(loader_name)
 
     @classmethod
