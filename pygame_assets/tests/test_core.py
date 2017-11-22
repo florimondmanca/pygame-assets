@@ -7,7 +7,7 @@ from pygame_assets import core, load
 from pygame_assets.exceptions import AssetNotFoundError
 from pygame_assets.configure import get_config
 
-from .utils import TestCase, define_test_loader
+from .utils import TestCase, define_test_text_loader
 
 
 class TestImports(unittest.TestCase):
@@ -30,7 +30,7 @@ class TestLoadAPI(TestCase):
             getattr(load, loader_name)
 
     def test_load_existing_asset(self):
-        with define_test_loader('text'):
+        with define_test_text_loader():
             # write a test file.
             text_path = get_config().search_paths('text', 'test.txt')[0]
             with open(text_path, 'w') as textfile:
@@ -41,7 +41,7 @@ class TestLoadAPI(TestCase):
             self.assertEqual('TEST!', text)
 
     def test_load_non_existing_asset_fails(self):
-        with define_test_loader('text'):
+        with define_test_text_loader():
             with self.assertRaises(AssetNotFoundError):
                 load.text('does_not_exist.txt')
 

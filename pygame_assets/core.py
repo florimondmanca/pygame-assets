@@ -138,5 +138,8 @@ class LoaderIndex:
             raise AttributeError('No such loader: {}'.format(name))
         return loader
 
+    def __contains__(self, loader_name):
+        return loader_name in loaders
+
 
 load = LoaderIndex()

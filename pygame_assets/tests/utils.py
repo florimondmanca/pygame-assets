@@ -30,20 +30,20 @@ class TestCase(unittest.TestCase):
 
 
 @contextmanager
-def define_test_loader(name):
+def define_test_text_loader():
     """Utility context manager.
 
     1. Creates a text loader which gets registered to pygame_assets,
     2. Yields the loader,
     3. Cleans up by unregistering the loader from pygame_assets.
     """
-    @core.loader(name=name)
+    @core.loader(name='text')
     def load_text(filepath):
         with open(filepath, 'r') as textfile:
             text = textfile.read()
         return text
     yield load_text
-    core.unregister(name)
+    core.unregister('text')
 
 
 @contextmanager
