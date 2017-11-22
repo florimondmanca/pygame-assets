@@ -22,7 +22,7 @@ before_install:
     - sudo apt-get build-dep -qq python-pygame
     - sudo apt-get install -qq python-pygame
     # set headless xvfb video device
-    - Xvfb :1
+    - Xvfb :1 & export DISPLAY=:1
 
 before_script:
     - cd pygame_assets
