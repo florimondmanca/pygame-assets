@@ -6,14 +6,16 @@ python:
 addons:
   apt:
     packages:
-      - xvfb
+      - xvfb  # implements the X11 protocol
 
 env:
   global:
     - PYTHONPATH="/home/travis/build/florimondmanca/pygame-assets"
     - PIP_USE_MIRRORS=true
+    # set no SDL audio device
     - AUDIODEV=null
-    - SDL_AUDIODRIVER=x11  # xvfb implements the x11 protocol
+    # SDL headless video device
+    - SDL_VIDEODRIVER=x11
 
 before_install:
     - sudo apt-get update -qq
