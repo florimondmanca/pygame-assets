@@ -2,8 +2,12 @@
 
 
 class AssetNotFoundError(ValueError):
-    """Custom value error for assets not found."""
+    """Raised when an asset was not found."""
 
     def __init__(self, filename, search_paths, *args, **kwargs):
         message = '{} (searched in {})'.format(filename, search_paths)
         super().__init__(message, *args, **kwargs)
+
+
+class NoSuchConfigurationParameterError(TypeError):
+    """Raised when an unregistered configuration parameter was defined."""

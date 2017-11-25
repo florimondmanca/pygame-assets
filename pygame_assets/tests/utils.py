@@ -2,7 +2,8 @@
 
 import unittest
 from contextlib import contextmanager
-from pygame_assets.configure import set_environ_config, Config, get_config
+from pygame_assets.configure import set_environ_config, Config, get_config, \
+    remove_config
 from pygame_assets import core
 
 
@@ -13,7 +14,9 @@ class TestConfig(Config):
     """
 
     name = 'test'
-    base = 'tests/assets'
+
+    class Meta:  # noqa
+        base = 'tests/assets'
 
 
 class TestCase(unittest.TestCase):
@@ -47,7 +50,7 @@ def define_test_text_loader():
 
 
 @contextmanager
-def change_config(attr_name, config=None):
+def change_config(*attributes, config=None):
     """Utility context manager.
 
     Use when you are writing an attribute of the config returned by
@@ -69,18 +72,48 @@ def change_config(attr_name, config=None):
 
     Parameters
     ----------
-    attr_name : str
-        The name of the config attribute that is going to be written during
+    *attributes : list of str
+        The names of the config attributes that are going to be written during
         tests.
-    config : Config, optional
+    config : Config, optional, kwarg only.
         You can pass a config object to use, default behavior is to
         use get_config().
 
     """
     if config is None:
         config = get_config()
-    old_value = getattr(config, attr_name)
+    old_values = {attr: getattr(config, attr) for attr in attributes}
     try:
         yield config
     finally:
-        setattr(config, attr_name, old_value)
+        for attr, old_value in old_values.items():
+            setattr(config, attr, old_value)
+
+
+@contextmanager
+def temp_config(*names):
+    """Utility context manager.
+
+    Use when declaring a new configuration to prevent from polluting the
+    global configuration manager.
+
+    Example
+    -------
+    ```
+    with temp_config('custom'):
+        class CustomConfig(Config):
+            name = 'custom'
+    # now the config 'custom' does not exist anymore.
+    ```
+
+    Parameters
+    ----------
+    names : list of str
+        The list of config names that are going to be declared.
+
+    """
+    try:
+        yield
+    finally:
+        for name in names:
+            remove_config(name)

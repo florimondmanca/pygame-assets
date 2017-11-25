@@ -189,7 +189,7 @@ class TestFreetypeFontLoader(LoaderTestCase):
         self.assertEqual(get_config().default_font_size, 20)
         self.assertEqual(self.asset().size, 20)
 
-    def test_default_change_default_size(self):
+    def test_change_default_size(self):
         with change_config('default_font_size') as config:
             config.default_font_size = 60
             self.assertEqual(self.asset().size, 60)
